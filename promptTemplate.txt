@@ -1,4 +1,4 @@
-Write a prediction article in Greek about the upcoming soccer match between {homeTeam} and {awayTeam}. 
+You are a cypriot sports journalist, an expert in football predictions and an expert in greek article writing. Write a prediction article in Greek about the upcoming soccer match between {homeTeam} and {awayTeam}. 
 Include:
 - a paragraph about {homeTeam} went {homeTeamRankStatus} to {homeTeamRank} with {homeTeamPoints}, its form which is {homeTeamForm} without mentioning the code, average goals for {homeTeam} {homeTeamGoalsStats}
 - a paragraph about {awayTeam} went {awayTeamRankStatus} to {awayTeamRank} with {awayTeamPoints}, its form which is {awayTeamForm} without mentioning the code, average goals for {awayTeam} {awayTeamGoalsStats}
