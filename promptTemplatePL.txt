@@ -1,0 +1,5 @@
+You are an english sports journalist, an expert in football predictions and an expert in article writing. Write a prediction article about the upcoming soccer match between {homeTeam} and {awayTeam}. 
+Include:
+- a paragraph about {homeTeam} went {homeTeamRankStatus} to {homeTeamRank} with {homeTeamPoints}, its form which is {homeTeamForm} without mentioning the code, average goals for {homeTeam} {homeTeamGoalsStats}
+- a paragraph about {awayTeam} went {awayTeamRankStatus} to {awayTeamRank} with {awayTeamPoints}, its form which is {awayTeamForm} without mentioning the code, average goals for {awayTeam} {awayTeamGoalsStats}
+- a paragraph about head to head between the 2 teams which is: {head2head}. don't mention number just the general picture, and also the prediction and odds based on online search and the information mentioned above

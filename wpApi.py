@@ -3,7 +3,7 @@ import requests
 class WPApi:
 
     def __init__(self):
-        self.site_url = 'http://localhost/wordpress'
+        self.site_url = 'http://localhost/wpdevninja'
         self.endpoint = '/wp-json/wp/v2/posts'
 
     def createPost(self, title, content):
@@ -16,7 +16,7 @@ class WPApi:
         # Complete URL
         url = f"{self.site_url}{self.endpoint}"
         headers={
-            "Authorization":"Basic YWRtaW46YWRtaW4xMjM0"
+            "Authorization":"Basic YWRtaW46YWRtaW4="
         }
         # Make the POST request
         print(url)
