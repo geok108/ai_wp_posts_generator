@@ -59,6 +59,19 @@ for fixture in currentRoundFixtures["response"]:
 		if(fixture["teams"]["away"]["name"] == h2hFixture["teams"]["away"]["name"] and h2hFixture["teams"]["away"]["winner"]):
 			awayTeamWins+=1	
 
+	xGData = footballData.getXG()
+	homeTeamPlayers = footballData.getPlayersStatsByTeam(fixture["teams"]["home"]["id"])
+	homeTeamFilteredPlayers = {name: player for name, player in homeTeamPlayers.items() if player["games"]["rating"] is not None}
+	homeTeamSortedPlayersBasedOnMinutes = dict(sorted(homeTeamFilteredPlayers.items(), key=lambda item: item[1]["games"]["minutes"], reverse=True)[:15])
+	homeTeamSortedPlayersBasedOnRating = dict(sorted(homeTeamSortedPlayersBasedOnMinutes.items(), key=lambda item: item[1]["games"]["rating"], reverse=True)[:5])
+	homeTeamXG = xGData[fixture["teams"]["home"]["name"]]
+
+	awayTeamPlayers = footballData.getPlayersStatsByTeam(fixture["teams"]["away"]["id"])
+	awayTeamFilteredPlayers = {name: player for name, player in awayTeamPlayers.items() if player["games"]["rating"] is not None}
+	awayTeamSortedPlayersBasedOnMinutes = dict(sorted(awayTeamFilteredPlayers.items(), key=lambda item: item[1]["games"]["minutes"], reverse=True)[:15])
+	awayTeamSortedPlayersBasedOnRating = dict(sorted(awayTeamSortedPlayersBasedOnMinutes.items(), key=lambda item: item[1]["games"]["rating"], reverse=True)[:5])
+	awayTeamXG = xGData[fixture["teams"]["away"]["name"]]
+
 	# prepare prompt template
 	placeholders = {
 		"{homeTeam}": fixture["teams"]["home"]["name"],

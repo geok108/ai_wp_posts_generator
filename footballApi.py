@@ -1,6 +1,7 @@
 import json
 import requests
 import os
+from bs4 import BeautifulSoup
 
 class FootballApi:
     def __init__(self):
@@ -18,7 +19,7 @@ class FootballApi:
         #get current round
         currentRoundUrl = "https://api-football-v1.p.rapidapi.com/v3/fixtures/rounds"
 
-        currentRoundQuerystring = {"league":"318","season":"2023","current":"true"}
+        currentRoundQuerystring = {"league":"39","season":"2024","current":"true"}
 
         currentRoundResponse = requests.get(currentRoundUrl, headers=self.headers, params=currentRoundQuerystring)
 
@@ -42,7 +43,7 @@ class FootballApi:
         #get current round fixtures
         url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
     
-        querystring = {"league":"318","season":"2023","round":currentRound}
+        querystring = {"league":"39","season":"2024","round":currentRound}
 
         response = requests.get(url, headers=self.headers, params=querystring)
         fixtures = response.json()
@@ -79,7 +80,7 @@ class FootballApi:
 
         url = "https://api-football-v1.p.rapidapi.com/v3/teams/statistics"
 
-        querystring = {"league":"318","season":"2023","team":str(teamId)}
+        querystring = {"league":"39","season":"2024","team":str(teamId)}
 
         response = requests.get(url, headers=self.headers, params=querystring)
 
@@ -88,7 +89,7 @@ class FootballApi:
     def getTeamStanding(self, teamId):
         url = "https://api-football-v1.p.rapidapi.com/v3/standings"
 
-        querystring = {"season":"2023","league":"318", "team":str(teamId)}
+        querystring = {"season":"2024","league":"39", "team":str(teamId)}
 
         headers = {
             "X-RapidAPI-Key": "8f66ce5ebfmsh4588389513cdc5cp148ac5jsn8cc2bf891041",
@@ -98,3 +99,77 @@ class FootballApi:
         response = requests.get(url, headers=headers, params=querystring)
 
         return response.json()
+    
+    def getPlayersStatsByTeam(self, teamId):
+        url = "https://api-football-v1.p.rapidapi.com/v3/players"
+
+        querystring = {"league":"39","season":"2024", "team": teamId}
+
+        headers = {
+            "X-RapidAPI-Key": "8f66ce5ebfmsh4588389513cdc5cp148ac5jsn8cc2bf891041",
+            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
+        }
+
+        response = requests.get(url, headers=headers, params=querystring).json()
+        results = {}
+        for player in response["response"]:
+            results[player["player"]["lastname"]] = player["statistics"][0]
+        for i in range(2, response["paging"]["total"]+1):
+           
+            querystring = {"league":"39","season":"2024", "team": teamId, "page": str(i)}
+            response = requests.get(url, headers=headers, params=querystring).json()
+            for player in response["response"]:
+                results[player["player"]["lastname"]] = player["statistics"][0]
+        return results
+    
+    def getXG(self):
+        # URL of the webpage to scrape
+        url = "https://footystats.org/england/premier-league/xg"
+
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+
+        # Send a GET request
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            # Parse the content with BeautifulSoup
+            soup = BeautifulSoup(response.content, "html.parser")
+            
+            table = soup.find('table', class_='xg-all')
+     
+            results = {}
+            if table:
+                # Extract team names and xG values
+                teams = table.find_all('td', class_='detailed-stats-team-name-size')   # Assuming team names are in <span class="team-name">
+                xg_values = table.find_all('td', class_='green')  # Assuming xG values are in <td class="xg-value">
+                
+                # Ensure the number of teams matches the number of xG values
+                if len(teams) == len(xg_values):
+                    for team, xg in zip(teams, xg_values):
+                        team_name = self.getTeamShortName(team.find('a').next)
+                        xg_number = xg.get_text().strip()
+                        print(f"Team: {team_name}, xG: {xg_number}")
+                        if xg_number:
+                            
+                            results[team_name] = xg_number
+                        else:
+                            results[team_name] = "Not found"  # Store a default value if xG is not found
+                
+                else:
+                    print("Mismatch between teams and xG values.")
+                return results
+            else:
+                print("Table with the specified class not found.")
+        else:
+            print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
+
+    def getTeamShortName(self, fullname):
+        switcher = {
+            "Manchester City FC": "Manchester City FC",
+            "Tottenham Hotspur FC": "Tottenham",
+            "Liverpool FC": "Liverpool"
+        }
+        return switcher.get(fullname, "")
+        
