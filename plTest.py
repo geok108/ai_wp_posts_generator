@@ -21,8 +21,8 @@ for fixture in currentRoundFixtures["response"]:
 
 	print("-------------FIXTURE " + fixture["teams"]["home"]["name"] + " vs " + fixture["teams"]["away"]["name"] + "-------------")
 	
-	homeTeamStanding = footballData.getTeamStanding(fixture["teams"]["home"]["id"])["response"][0]["league"]["standings"][0][0]
-	awayTeamStanding = footballData.getTeamStanding(fixture["teams"]["away"]["id"])["response"][0]["league"]["standings"][0][0]
+	homeTeamStanding = footballData.getTeamStanding(fixture["teams"]["home"]["id"])
+	awayTeamStanding = footballData.getTeamStanding(fixture["teams"]["away"]["id"])
 
 	date_object = datetime.fromisoformat(fixture["fixture"]["date"])
 
@@ -103,10 +103,9 @@ for fixture in currentRoundFixtures["response"]:
 									+ ", draws: " + str(drawsCount))	
 		promptTemplate.replace("{homeTeamForm}", lastFiveGamesFormHomeTeam)
 		promptTemplate.replace("{awayTeamForm}", lastFiveGamesFormAwayTeam)
-	time.sleep(60)
-
-	# res = ollama.ChatOllama(promptTemplate)
-	# postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate + " Prediction"
+	
+	res = ollama.ChatOllama(promptTemplate)
+	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate + " Prediction"
 	# print("CREATING WP POST...")
 	# wpApi.createPost(postTitle, res)
 	# print("WP POST CREATED")

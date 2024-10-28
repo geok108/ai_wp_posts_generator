@@ -10,7 +10,7 @@ class FootballApi:
             "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
         }
 
-    def getCurrentRound(self, local=False):
+    def getCurrentRound(self, local=True):
         if local and os.path.exists("currentRound.json"):
             with open("currentRound.json", 'r') as file:
                 currentRound = json.load(file)["response"][0]
@@ -34,7 +34,7 @@ class FootballApi:
 
         return currentRound["response"][0]
 
-    def getCurrentRoundFixtures(self, currentRound, local=False):
+    def getCurrentRoundFixtures(self, currentRound, local=True):
         if local and os.path.exists("currentRoundFixtures.json"):
             with open("currentRoundFixtures.json", 'r') as file:
                 currentRoundFixtures = json.load(file)
@@ -67,57 +67,82 @@ class FootballApi:
 
         return response.json()
 
-    def getInjuriesByFixture(self, fixture):
+    def getInjuriesByFixture(self, fixture, local=True):
+        if local and os.path.exists("injuries.json"):
+            with open("injuries.json", 'r') as file:
+                playerInjuries = json.load(file)
+                return playerInjuries
+            
         url = "https://api-football-v1.p.rapidapi.com/v3/injuries"
 
         querystring = {"fixture":str(fixture)}
 
-        response = requests.get(url, headers=self.headers, params=querystring)
+        injuries = requests.get(url, headers=self.headers, params=querystring).json()
+        # The file path where you want to save the JSON file
+        injuriesPath = "injuries.json"
 
-        return response.json()
+        # Write the JSON data to a file
+        with open(injuriesPath, 'w') as file:
+            json.dump(injuries, file)
+        return injuries
 
-    def getTeamStats(self, teamId):
-
+    def getTeamStats(self, teamId, local=True):
+        if local and os.path.exists("teamStats.json"):
+            with open("teamStats.json", 'r') as file:
+                teamStats = json.load(file)
+                return teamStats
         url = "https://api-football-v1.p.rapidapi.com/v3/teams/statistics"
 
         querystring = {"league":"39","season":"2024","team":str(teamId)}
 
-        response = requests.get(url, headers=self.headers, params=querystring)
+        stats = requests.get(url, headers=self.headers, params=querystring).json()
 
-        return(response.json())
+        # The file path where you want to save the JSON file
+        teamStatsPath = "teamStats.json"
+
+        # Write the JSON data to a file
+        with open(teamStatsPath, 'w') as file:
+            json.dump(stats, file)
+        return stats
     
-    def getTeamStanding(self, teamId):
+    def getTeamStanding(self, teamId=None, local=True):
+        if local and os.path.exists("standings.json"):
+            with open("standings.json", 'r') as file:
+                standings = json.load(file)
+                if(teamId is not None):
+                    return self.findTeamStanding(standings, int(teamId))
+                return standings
         url = "https://api-football-v1.p.rapidapi.com/v3/standings"
 
-        querystring = {"season":"2024","league":"39", "team":str(teamId)}
+        # querystring = {"season":"2024","league":"39", "team":str(teamId)}
+        querystring = {"season":"2024","league":"39"}
 
-        headers = {
-            "X-RapidAPI-Key": "8f66ce5ebfmsh4588389513cdc5cp148ac5jsn8cc2bf891041",
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
-        }
+        standings = requests.get(url, headers=self.headers, params=querystring).json()["response"][0]["league"]["standings"][0]
+      
+        # The file path where you want to save the JSON file
+        standingsPath = "standings.json"
 
-        response = requests.get(url, headers=headers, params=querystring)
+        # Write the JSON data to a file
+        with open(standingsPath, 'w') as file:
+            json.dump(standings, file)
 
-        return response.json()
+        if(teamId is not None):
+            return self.findTeamStanding(standings, int(teamId))
+        return standings
     
     def getPlayersStatsByTeam(self, teamId):
         url = "https://api-football-v1.p.rapidapi.com/v3/players"
 
         querystring = {"league":"39","season":"2024", "team": teamId}
 
-        headers = {
-            "X-RapidAPI-Key": "8f66ce5ebfmsh4588389513cdc5cp148ac5jsn8cc2bf891041",
-            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
-        }
-
-        response = requests.get(url, headers=headers, params=querystring).json()
+        response = requests.get(url, headers=self.headers, params=querystring).json()
         results = {}
         for player in response["response"]:
             results[player["player"]["lastname"]] = player["statistics"][0]
         for i in range(2, response["paging"]["total"]+1):
            
             querystring = {"league":"39","season":"2024", "team": teamId, "page": str(i)}
-            response = requests.get(url, headers=headers, params=querystring).json()
+            response = requests.get(url, headers=self.headers, params=querystring).json()
             for player in response["response"]:
                 results[player["player"]["lastname"]] = player["statistics"][0]
         return results
@@ -149,6 +174,8 @@ class FootballApi:
                 if len(teams) == len(xg_values):
                     for team, xg in zip(teams, xg_values):
                         team_name = self.getTeamShortName(team.find('a').next)
+                        # team_name = team.find('a').next
+
                         xg_number = xg.get_text().strip()
                         print(f"Team: {team_name}, xG: {xg_number}")
                         if xg_number:
@@ -169,7 +196,30 @@ class FootballApi:
         switcher = {
             "Manchester City FC": "Manchester City FC",
             "Tottenham Hotspur FC": "Tottenham",
-            "Liverpool FC": "Liverpool"
+            "Arsenal FC": "Arsenal",
+            "Liverpool FC": "Liverpool",
+            "Manchester United FC": "Manchester United",
+            "Chelsea FC": "Chelsea",
+            "AFC Bournemouth": "Bournemouth",
+            "Brighton & Hove Albion FC": "Brighton",
+            "West Ham United FC": "West Ham",
+            "Fulham FC": "Fulham",
+            "Nottingham Forest FC": "Nottingham Forest",
+            "Brentford FC": "Brentford",
+            "Crystal Palace FC": "Crystal Palace",
+            "Aston Villa FC": "Aston Villa",
+            "Newcastle United FC": "Newcastle",
+            "Everton FC": "Everton",
+            "Wolverhampton Wanderers FC": "Wolves",
+            "Southampton FC": "Southampton",
+            "Leicester City FC": "Leicester",
+            "Ipswich Town FC": "Ipswich"
         }
         return switcher.get(fullname, "")
         
+    # Function to find a field by id
+    def findTeamStanding(self, standings, teamId):
+        for item in standings:
+            if item["team"]["id"] == teamId:
+                return item
+        return None
