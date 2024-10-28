@@ -70,6 +70,10 @@ for fixture in currentRoundFixtures["response"]:
 	awayTeamFilteredPlayers = {name: player for name, player in awayTeamPlayers.items() if player["games"]["rating"] is not None}
 	awayTeamSortedPlayersBasedOnMinutes = dict(sorted(awayTeamFilteredPlayers.items(), key=lambda item: item[1]["games"]["minutes"], reverse=True)[:15])
 	awayTeamSortedPlayersBasedOnRating = dict(sorted(awayTeamSortedPlayersBasedOnMinutes.items(), key=lambda item: item[1]["games"]["rating"], reverse=True)[:5])
+	absences = footballData.getInjuriesByFixture(fixture["fixture"]["id"])
+	if(absences["results"] > 0):
+		homeTeamAbsences = [item for item in absences["response"] if item['team']['id'] == fixture["teams"]["home"]["id"]]
+		awayTeamAbsences = [item for item in absences["response"] if item['team']['id'] == fixture["teams"]["away"]["id"]]
 	awayTeamXG = xGData[fixture["teams"]["away"]["name"]]
 
 	# prepare prompt template
@@ -90,7 +94,9 @@ for fixture in currentRoundFixtures["response"]:
 		"{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome + ", goals scored away " + homeTeamGoalsForAway
 								+ ", goals against in home" + homeTeamGoalsAgainstInHome + ", goals against away " + homeTeamGoalsAgainstAway,
 		"{awayTeamGoalsStats}": "goals scored in home " + awayTeamGoalsForInHome + ", goals scored away " + awayTeamGoalsForAway
-								+ ", goals against in home" + awayTeamGoalsAgainstInHome + ", goals against away " + awayTeamGoalsAgainstAway
+								+ ", goals against in home" + awayTeamGoalsAgainstInHome + ", goals against away " + awayTeamGoalsAgainstAway,
+		"{homeXG}": homeTeamXG,
+		"{awayXG}": awayTeamXG,
 	}
 	
 	for key, value in placeholders.items():

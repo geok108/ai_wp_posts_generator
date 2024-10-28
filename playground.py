@@ -11,8 +11,12 @@ wpApi = WPApi()
 
 
 # res = footballData.getTeamStanding("51", True)
-footballData.getXG()
-
+# footballData.getXG()
+res = footballData.getInjuriesByFixture(686308)
+if(res["results"] > 0):
+    team1_data = [item for item in res["response"] if item['team']['id'] == 165]
+    team2_data = [item for item in res["response"] if item['team']['id'] == 168]
+print("dasd")
 # res = ollama.ChatOllama('''You are a football betting tipster expert at what you do with many successes. Write a short post with you are prediction about the upcoming match between Chelsea and Newcastle. For your prediction you should consider the following: 
 #                     a. absences of key players for both teams
 #                     b. the form of both teams and how strong they teams they faced were
@@ -26,4 +30,3 @@ footballData.getXG()
 # sortedPlayersBasedOnMinutes = dict(sorted(filteredPlayers.items(), key=lambda item: item[1]["games"]["minutes"], reverse=True)[:15])
 # sortedPlayersBasedOnRating = dict(sorted(sortedPlayersBasedOnMinutes.items(), key=lambda item: item[1]["games"]["rating"], reverse=True)[:5])
 
-print("dasd")

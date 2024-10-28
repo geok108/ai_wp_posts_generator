@@ -67,7 +67,7 @@ class FootballApi:
 
         return response.json()
 
-    def getInjuriesByFixture(self, fixture, local=True):
+    def getInjuriesByFixture(self, fixture, local=False):
         if local and os.path.exists("injuries.json"):
             with open("injuries.json", 'r') as file:
                 playerInjuries = json.load(file)
@@ -75,7 +75,7 @@ class FootballApi:
             
         url = "https://api-football-v1.p.rapidapi.com/v3/injuries"
 
-        querystring = {"fixture":str(fixture)}
+        querystring = {"fixture": fixture}
 
         injuries = requests.get(url, headers=self.headers, params=querystring).json()
         # The file path where you want to save the JSON file
@@ -138,13 +138,13 @@ class FootballApi:
         response = requests.get(url, headers=self.headers, params=querystring).json()
         results = {}
         for player in response["response"]:
-            results[player["player"]["lastname"]] = player["statistics"][0]
+            results[player["player"]["name"]] = player["statistics"][0]
         for i in range(2, response["paging"]["total"]+1):
            
             querystring = {"league":"39","season":"2024", "team": teamId, "page": str(i)}
             response = requests.get(url, headers=self.headers, params=querystring).json()
             for player in response["response"]:
-                results[player["player"]["lastname"]] = player["statistics"][0]
+                results[player["player"]["name"]] = player["statistics"][0]
         return results
     
     def getXG(self):
@@ -191,6 +191,27 @@ class FootballApi:
                 print("Table with the specified class not found.")
         else:
             print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
+
+    def getFixturePredictions(self, fixture, local=True):
+        if local and os.path.exists("predictions.json"):
+            with open("predictions.json", 'r') as file:
+                standings = json.load(file)
+                return standings
+        url = "https://api-football-v1.p.rapidapi.com/v3/predictions"
+
+        # querystring = {"season":"2024","league":"39", "team":str(teamId)}
+        querystring = {"fixture": fixture}
+
+        fixturePredictions = requests.get(url, headers=self.headers, params=querystring).json()
+      
+        # The file path where you want to save the JSON file
+        predictionsPath = "predictions.json"
+
+        # Write the JSON data to a file
+        with open(predictionsPath, 'w') as file:
+            json.dump(fixturePredictions, file)
+
+        return fixturePredictions
 
     def getTeamShortName(self, fullname):
         switcher = {
