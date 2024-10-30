@@ -9,6 +9,16 @@ footballData = FootballApi()
 ollama = OllamaHelper()
 wpApi = WPApi()
 
+def isSidelined(playerId, fixtureDate):
+	sidelinedPlayer = footballData.getSidelinedPlayer(playerId)
+	absenceEndDate = None if sidelinedPlayer["response"][0]["end"] is None else datetime.strptime(sidelinedPlayer["response"][0]["end"], "%Y-%m-%d")
+	fixtureDate = datetime.strptime(fixtureDate, "%Y-%m-%d")
+
+	if(absenceEndDate is None or absenceEndDate > fixtureDate):
+		return True
+	
+	return False
+
 currentRound = footballData.getCurrentRound()
 print(currentRound)
 
@@ -61,21 +71,30 @@ for fixture in currentRoundFixtures["response"]:
 
 	xGData = footballData.getXG()
 	homeTeamPlayers = footballData.getPlayersStatsByTeam(fixture["teams"]["home"]["id"])
-	homeTeamFilteredPlayers = {name: player for name, player in homeTeamPlayers.items() if player["games"]["rating"] is not None}
-	homeTeamSortedPlayersBasedOnMinutes = dict(sorted(homeTeamFilteredPlayers.items(), key=lambda item: item[1]["games"]["minutes"], reverse=True)[:15])
-	homeTeamSortedPlayersBasedOnRating = dict(sorted(homeTeamSortedPlayersBasedOnMinutes.items(), key=lambda item: item[1]["games"]["rating"], reverse=True)[:5])
+	homeTeamFilteredPlayers = list(filter(lambda player: player["statistics"][0]["games"]["rating"] is not None, homeTeamPlayers))
+
+	homeTeamSortedPlayersBasedOnMinutes = sorted(homeTeamFilteredPlayers, key=lambda item: item["statistics"][0]["games"]["minutes"], reverse=True)[:15]
+	homeTeamSortedPlayersBasedOnRating = sorted(homeTeamSortedPlayersBasedOnMinutes, key=lambda item: item["statistics"][0]["games"]["rating"], reverse=True)[:5]
+	homeTeamKeyPlayersAbsences = []
+	for player in homeTeamSortedPlayersBasedOnRating:
+		if(isSidelined(player["player"]["id"], date_object.strftime("%Y-%m-%d"))):			
+			homeTeamKeyPlayersAbsences.append(player)
+	
 	homeTeamXG = xGData[fixture["teams"]["home"]["name"]]
 
+
 	awayTeamPlayers = footballData.getPlayersStatsByTeam(fixture["teams"]["away"]["id"])
-	awayTeamFilteredPlayers = {name: player for name, player in awayTeamPlayers.items() if player["games"]["rating"] is not None}
-	awayTeamSortedPlayersBasedOnMinutes = dict(sorted(awayTeamFilteredPlayers.items(), key=lambda item: item[1]["games"]["minutes"], reverse=True)[:15])
-	awayTeamSortedPlayersBasedOnRating = dict(sorted(awayTeamSortedPlayersBasedOnMinutes.items(), key=lambda item: item[1]["games"]["rating"], reverse=True)[:5])
-	absences = footballData.getInjuriesByFixture(fixture["fixture"]["id"])
-	if(absences["results"] > 0):
-		homeTeamAbsences = [item for item in absences["response"] if item['team']['id'] == fixture["teams"]["home"]["id"]]
-		awayTeamAbsences = [item for item in absences["response"] if item['team']['id'] == fixture["teams"]["away"]["id"]]
+	awayTeamFilteredPlayers = list(filter(lambda player: player["statistics"][0]["games"]["rating"] is not None, awayTeamPlayers))
+	awayTeamSortedPlayersBasedOnMinutes = sorted(awayTeamFilteredPlayers, key=lambda item: item["statistics"][0]["games"]["minutes"], reverse=True)[:15]
+	awayTeamSortedPlayersBasedOnRating = sorted(awayTeamSortedPlayersBasedOnMinutes, key=lambda item: item["statistics"][0]["games"]["rating"], reverse=True)[:5]
+	awayTeamKeyPlayersAbsences = []
+	for player in awayTeamSortedPlayersBasedOnRating:
+		if(isSidelined(player["player"]["id"], date_object.strftime("%Y-%m-%d"))):			
+			awayTeamKeyPlayersAbsences.append(player)
+
 	awayTeamXG = xGData[fixture["teams"]["away"]["name"]]
 
+	#TODO: replace absend players in prompt if any
 	# prepare prompt template
 	placeholders = {
 		"{homeTeam}": fixture["teams"]["home"]["name"],
@@ -115,3 +134,4 @@ for fixture in currentRoundFixtures["response"]:
 	# print("CREATING WP POST...")
 	# wpApi.createPost(postTitle, res)
 	# print("WP POST CREATED")
+

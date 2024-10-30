@@ -12,10 +12,13 @@ wpApi = WPApi()
 
 # res = footballData.getTeamStanding("51", True)
 # footballData.getXG()
-res = footballData.getInjuriesByFixture(686308)
-if(res["results"] > 0):
-    team1_data = [item for item in res["response"] if item['team']['id'] == 165]
-    team2_data = [item for item in res["response"] if item['team']['id'] == 168]
+# awayTeamPlayers = footballData.getPlayersStatsByTeam(42)
+
+res = footballData.getSidelinedPlayer("22090")
+# res = footballData.getInjuriesByFixture(686308)
+# if(res["results"] > 0):
+#     team1_data = [item for item in res["response"] if item['team']['id'] == 165]
+#     team2_data = [item for item in res["response"] if item['team']['id'] == 168]
 print("dasd")
 # res = ollama.ChatOllama('''You are a football betting tipster expert at what you do with many successes. Write a short post with you are prediction about the upcoming match between Chelsea and Newcastle. For your prediction you should consider the following: 
 #                     a. absences of key players for both teams

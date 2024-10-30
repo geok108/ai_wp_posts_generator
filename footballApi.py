@@ -136,16 +136,25 @@ class FootballApi:
         querystring = {"league":"39","season":"2024", "team": teamId}
 
         response = requests.get(url, headers=self.headers, params=querystring).json()
-        results = {}
+        results = []
         for player in response["response"]:
-            results[player["player"]["name"]] = player["statistics"][0]
+            results.append(player)
         for i in range(2, response["paging"]["total"]+1):
            
             querystring = {"league":"39","season":"2024", "team": teamId, "page": str(i)}
             response = requests.get(url, headers=self.headers, params=querystring).json()
             for player in response["response"]:
-                results[player["player"]["name"]] = player["statistics"][0]
+                results.append(player)
         return results
+    
+    def getSidelinedPlayer(self, playerId):
+        url = "https://api-football-v1.p.rapidapi.com/v3/sidelined"
+
+        querystring = {"player": playerId}
+
+        response = requests.get(url, headers=self.headers, params=querystring).json()
+     
+        return response
     
     def getXG(self):
         # URL of the webpage to scrape
