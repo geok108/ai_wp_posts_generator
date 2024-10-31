@@ -4,4 +4,5 @@ Include:
 - a paragraph about {awayTeam} went or remained{awayTeamRankStatus} to {awayTeamRank} with {awayTeamPoints}, its form which is {awayTeamForm} without mentioning the code, average goals for {awayTeam} {awayTeamGoalsStats}
 - a paragraph about head to head between the 2 teams which is: {head2head}. don't mention number just the general picture, and also the prediction and odds based on online search and the information mentioned above
 - Expected goals(xG) of {homeTeam}({homeXG}) and expected goals of {awayTeam}({awayXG})
+- The following key players will be sidelined for {homeTeam}: {homeTeamSidelinedPlayers} and {awayTeamSidelinedPlayers} for {awayTeam}
  

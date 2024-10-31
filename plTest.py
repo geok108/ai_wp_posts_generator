@@ -78,7 +78,7 @@ for fixture in currentRoundFixtures["response"]:
 	homeTeamKeyPlayersAbsences = []
 	for player in homeTeamSortedPlayersBasedOnRating:
 		if(isSidelined(player["player"]["id"], date_object.strftime("%Y-%m-%d"))):			
-			homeTeamKeyPlayersAbsences.append(player)
+			homeTeamKeyPlayersAbsences.append(player["player"]["lastname"])
 	
 	homeTeamXG = xGData[fixture["teams"]["home"]["name"]]
 
@@ -90,11 +90,10 @@ for fixture in currentRoundFixtures["response"]:
 	awayTeamKeyPlayersAbsences = []
 	for player in awayTeamSortedPlayersBasedOnRating:
 		if(isSidelined(player["player"]["id"], date_object.strftime("%Y-%m-%d"))):			
-			awayTeamKeyPlayersAbsences.append(player)
+			awayTeamKeyPlayersAbsences.append(player["player"]["lastname"])
 
 	awayTeamXG = xGData[fixture["teams"]["away"]["name"]]
-
-	#TODO: replace absend players in prompt if any
+	
 	# prepare prompt template
 	placeholders = {
 		"{homeTeam}": fixture["teams"]["home"]["name"],
@@ -116,6 +115,8 @@ for fixture in currentRoundFixtures["response"]:
 								+ ", goals against in home" + awayTeamGoalsAgainstInHome + ", goals against away " + awayTeamGoalsAgainstAway,
 		"{homeXG}": homeTeamXG,
 		"{awayXG}": awayTeamXG,
+		"{homeTeamSidelinedPlayers}": ",".join(homeTeamKeyPlayersAbsences) if len(homeTeamKeyPlayersAbsences) > 0 else "",
+		"{awayTeamSidelinedPlayers}": ",".join(awayTeamKeyPlayersAbsences) if len(awayTeamKeyPlayersAbsences) > 0 else ""
 	}
 	
 	for key, value in placeholders.items():
