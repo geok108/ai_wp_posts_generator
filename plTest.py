@@ -5,7 +5,7 @@ from ollamaHelper import OllamaHelper
 from wpApi import WPApi
 import time
 
-footballData = FootballApi()
+footballData = FootballApi("39", "2024")
 ollama = OllamaHelper()
 wpApi = WPApi()
 

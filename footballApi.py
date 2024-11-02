@@ -4,22 +4,27 @@ import os
 from bs4 import BeautifulSoup
 
 class FootballApi:
-    def __init__(self):
+    def __init__(self, league, season, local = False):
         self.headers = {
             "X-RapidAPI-Key": "8f66ce5ebfmsh4588389513cdc5cp148ac5jsn8cc2bf891041",
             "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
         }
 
-    def getCurrentRound(self, local=True):
-        if local and os.path.exists("currentRound.json"):
+        self.baseUrl = "https://api-football-v1.p.rapidapi.com/v3"
+        self.league = league
+        self.season = season
+        self.local = local
+
+    def getCurrentRound(self):
+        if self.local and os.path.exists("currentRound.json"):
             with open("currentRound.json", 'r') as file:
                 currentRound = json.load(file)["response"][0]
                 return currentRound
             
         #get current round
-        currentRoundUrl = "https://api-football-v1.p.rapidapi.com/v3/fixtures/rounds"
+        currentRoundUrl = self.baseUrl + "/fixtures/rounds"
 
-        currentRoundQuerystring = {"league":"39","season":"2024","current":"true"}
+        currentRoundQuerystring = {"league":self.league,"season":self.season,"current":"true"}
 
         currentRoundResponse = requests.get(currentRoundUrl, headers=self.headers, params=currentRoundQuerystring)
 
@@ -34,16 +39,16 @@ class FootballApi:
 
         return currentRound["response"][0]
 
-    def getCurrentRoundFixtures(self, currentRound, local=True):
-        if local and os.path.exists("currentRoundFixtures.json"):
+    def getCurrentRoundFixtures(self, currentRound):
+        if self.local and os.path.exists("currentRoundFixtures.json"):
             with open("currentRoundFixtures.json", 'r') as file:
                 currentRoundFixtures = json.load(file)
                 return currentRoundFixtures
 
         #get current round fixtures
-        url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
+        url = self.baseUrl + "/fixtures"
     
-        querystring = {"league":"39","season":"2024","round":currentRound}
+        querystring = {"league":self.league,"season":self.season,"round":currentRound}
 
         response = requests.get(url, headers=self.headers, params=querystring)
         fixtures = response.json()
@@ -59,7 +64,7 @@ class FootballApi:
 
     def getHeadToHead(self, home, away):
 
-        url = "https://api-football-v1.p.rapidapi.com/v3/fixtures/headtohead"
+        url = self.baseUrl + "/fixtures/headtohead"
 
         querystring = {"h2h":str(home)+"-"+str(away)}
 
@@ -67,13 +72,13 @@ class FootballApi:
 
         return response.json()
 
-    def getInjuriesByFixture(self, fixture, local=False):
-        if local and os.path.exists("injuries.json"):
+    def getInjuriesByFixture(self, fixture):
+        if self.local and os.path.exists("injuries.json"):
             with open("injuries.json", 'r') as file:
                 playerInjuries = json.load(file)
                 return playerInjuries
             
-        url = "https://api-football-v1.p.rapidapi.com/v3/injuries"
+        url = self.baseUrl + "/injuries"
 
         querystring = {"fixture": fixture}
 
@@ -86,14 +91,14 @@ class FootballApi:
             json.dump(injuries, file)
         return injuries
 
-    def getTeamStats(self, teamId, local=True):
-        if local and os.path.exists("teamStats.json"):
+    def getTeamStats(self, teamId):
+        if self.local and os.path.exists("teamStats.json"):
             with open("teamStats.json", 'r') as file:
                 teamStats = json.load(file)
                 return teamStats
-        url = "https://api-football-v1.p.rapidapi.com/v3/teams/statistics"
+        url = self.baseUrl + "/teams/statistics"
 
-        querystring = {"league":"39","season":"2024","team":str(teamId)}
+        querystring = {"league":self.league,"season":self.season,"team":str(teamId)}
 
         stats = requests.get(url, headers=self.headers, params=querystring).json()
 
@@ -105,17 +110,17 @@ class FootballApi:
             json.dump(stats, file)
         return stats
     
-    def getTeamStanding(self, teamId=None, local=True):
-        if local and os.path.exists("standings.json"):
+    def getTeamStanding(self, teamId=None):
+        if self.local and os.path.exists("standings.json"):
             with open("standings.json", 'r') as file:
                 standings = json.load(file)
                 if(teamId is not None):
                     return self.findTeamStanding(standings, int(teamId))
                 return standings
-        url = "https://api-football-v1.p.rapidapi.com/v3/standings"
+        url = self.baseUrl + "/standings"
 
         # querystring = {"season":"2024","league":"39", "team":str(teamId)}
-        querystring = {"season":"2024","league":"39"}
+        querystring = {"league":self.league, "season":self.season}
 
         standings = requests.get(url, headers=self.headers, params=querystring).json()["response"][0]["league"]["standings"][0]
       
@@ -131,9 +136,9 @@ class FootballApi:
         return standings
     
     def getPlayersStatsByTeam(self, teamId):
-        url = "https://api-football-v1.p.rapidapi.com/v3/players"
+        url = self.baseUrl + "/players"
 
-        querystring = {"league":"39","season":"2024", "team": teamId}
+        querystring = {"league":self.league,"season":self.season, "team": teamId}
 
         response = requests.get(url, headers=self.headers, params=querystring).json()
         results = []
@@ -141,14 +146,14 @@ class FootballApi:
             results.append(player)
         for i in range(2, response["paging"]["total"]+1):
            
-            querystring = {"league":"39","season":"2024", "team": teamId, "page": str(i)}
+            querystring = {"league":self.league,"season":self.season, "team": teamId, "page": str(i)}
             response = requests.get(url, headers=self.headers, params=querystring).json()
             for player in response["response"]:
                 results.append(player)
         return results
     
     def getSidelinedPlayer(self, playerId):
-        url = "https://api-football-v1.p.rapidapi.com/v3/sidelined"
+        url = self.baseUrl + "/sidelined"
 
         querystring = {"player": playerId}
 
@@ -201,12 +206,12 @@ class FootballApi:
         else:
             print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
 
-    def getFixturePredictions(self, fixture, local=True):
-        if local and os.path.exists("predictions.json"):
+    def getFixturePredictions(self, fixture):
+        if self.local and os.path.exists("predictions.json"):
             with open("predictions.json", 'r') as file:
                 standings = json.load(file)
                 return standings
-        url = "https://api-football-v1.p.rapidapi.com/v3/predictions"
+        url = self.baseUrl + "/predictions"
 
         # querystring = {"season":"2024","league":"39", "team":str(teamId)}
         querystring = {"fixture": fixture}
