@@ -11,7 +11,7 @@ wpApi = WPApi()
 
 def isSidelined(playerId, fixtureDate):
 	sidelinedPlayer = footballData.getSidelinedPlayer(playerId)
-	absenceEndDate = None if sidelinedPlayer["response"][0]["end"] is None else datetime.strptime(sidelinedPlayer["response"][0]["end"], "%Y-%m-%d")
+	absenceEndDate = None if sidelinedPlayer["response"][0]["end"] is None or sidelinedPlayer["results"] == 0 else datetime.strptime(sidelinedPlayer["response"][0]["end"], "%Y-%m-%d")
 	fixtureDate = datetime.strptime(fixtureDate, "%Y-%m-%d")
 
 	if(absenceEndDate is None or absenceEndDate > fixtureDate):
@@ -23,12 +23,8 @@ currentRound = footballData.getCurrentRound()
 print(currentRound)
 
 currentRoundFixtures = footballData.getCurrentRoundFixtures(currentRound)
-with open("promptTemplatePL.txt", 'r', encoding='utf-8') as file:
-	promptTemplate = file.read()
 
 for fixture in currentRoundFixtures["response"]:
-	
-
 	print("-------------FIXTURE " + fixture["teams"]["home"]["name"] + " vs " + fixture["teams"]["away"]["name"] + "-------------")
 	
 	homeTeamStanding = footballData.getTeamStanding(fixture["teams"]["home"]["id"])
@@ -104,35 +100,30 @@ for fixture in currentRoundFixtures["response"]:
 		"{awayTeamRank}": str(awayTeamStanding["rank"]),
 		"{awayTeamPoints}": str(awayTeamStanding["points"]),
 		"{awayTeamRankStatus}": str(awayTeamStanding["status"]),
-		"{head2head}": fixture["teams"]["home"]["name"] + " wins: " 
-								 + str(homeTeamWins) + ", " + fixture["teams"]["away"]["name"] + " wins: " + str(awayTeamWins)
-								 + ", draws: " + str(drawsCount),
+		"{head2head}": fixture["teams"]["home"]["name"] + " won " 
+								 + str(homeTeamWins) + " times, " + fixture["teams"]["away"]["name"] + " won " + str(awayTeamWins)
+								 + ", and " + str(drawsCount) + " draws.",
 		"{homeTeamForm}": lastFiveGamesFormHomeTeam,
 		"{awayTeamForm}": lastFiveGamesFormAwayTeam,
-		"{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome + ", goals scored away " + homeTeamGoalsForAway
-								+ ", goals against in home" + homeTeamGoalsAgainstInHome + ", goals against away " + homeTeamGoalsAgainstAway,
-		"{awayTeamGoalsStats}": "goals scored in home " + awayTeamGoalsForInHome + ", goals scored away " + awayTeamGoalsForAway
-								+ ", goals against in home" + awayTeamGoalsAgainstInHome + ", goals against away " + awayTeamGoalsAgainstAway,
+		"{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome + ", and goals scored away " + homeTeamGoalsForAway
+								+ ", goals conceded in home " + homeTeamGoalsAgainstInHome + ", and goals conceded away " + homeTeamGoalsAgainstAway,
+		"{awayTeamGoalsStats}": "goals scored in home " + awayTeamGoalsForInHome + ", and goals scored away " + awayTeamGoalsForAway
+								+ ", goals conceded in home " + awayTeamGoalsAgainstInHome + ", and goals conceded away " + awayTeamGoalsAgainstAway,
 		"{homeXG}": homeTeamXG,
 		"{awayXG}": awayTeamXG,
-		"{homeTeamSidelinedPlayers}": ",".join(homeTeamKeyPlayersAbsences) if len(homeTeamKeyPlayersAbsences) > 0 else "",
-		"{awayTeamSidelinedPlayers}": ",".join(awayTeamKeyPlayersAbsences) if len(awayTeamKeyPlayersAbsences) > 0 else ""
+		"{homeTeamSidelinedPlayers}": ",".join(homeTeamKeyPlayersAbsences) if len(homeTeamKeyPlayersAbsences) > 0 else " None",
+		"{awayTeamSidelinedPlayers}": ",".join(awayTeamKeyPlayersAbsences) if len(awayTeamKeyPlayersAbsences) > 0 else " None"
 	}
-	
+
+	with open("promptTemplatePL.txt", 'r', encoding='utf-8') as file:
+		promptTemplate = file.read()
+
 	for key, value in placeholders.items():
 		promptTemplate = re.sub(key, value, promptTemplate)
-
-		promptTemplate.replace("{homeTeam}", fixture["teams"]["home"]["name"])
-		promptTemplate.replace("{awayTeam}", fixture["teams"]["away"]["name"])
-		promptTemplate.replace("{head2head}", fixture["teams"]["home"]["name"] + " wins: " 
-									+ str(homeTeamWins) + ", " + fixture["teams"]["away"]["name"] + " wins: " + str(awayTeamWins)
-									+ ", draws: " + str(drawsCount))	
-		promptTemplate.replace("{homeTeamForm}", lastFiveGamesFormHomeTeam)
-		promptTemplate.replace("{awayTeamForm}", lastFiveGamesFormAwayTeam)
 	
 	res = ollama.ChatOllama(promptTemplate)
 	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate + " Prediction"
-	# print("CREATING WP POST...")
-	# wpApi.createPost(postTitle, res)
-	# print("WP POST CREATED")
+	print("CREATING WP POST...")
+	wpApi.createPost(postTitle, res)
+	print("WP POST CREATED")
 

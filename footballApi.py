@@ -229,7 +229,7 @@ class FootballApi:
 
     def getTeamShortName(self, fullname):
         switcher = {
-            "Manchester City FC": "Manchester City FC",
+            "Manchester City FC": "Manchester City",
             "Tottenham Hotspur FC": "Tottenham",
             "Arsenal FC": "Arsenal",
             "Liverpool FC": "Liverpool",

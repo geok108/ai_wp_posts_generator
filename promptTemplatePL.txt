@@ -1,8 +1,19 @@
-You are an english sports journalist, an expert in football predictions and an expert in article writing. Write a prediction article about the upcoming soccer match between {homeTeam} and {awayTeam}. 
-Include:
-- a paragraph about {homeTeam} went or remained {homeTeamRankStatus} to {homeTeamRank} with {homeTeamPoints}, its form which is {homeTeamForm} without mentioning the code, average goals for {homeTeam} {homeTeamGoalsStats}
-- a paragraph about {awayTeam} went or remained{awayTeamRankStatus} to {awayTeamRank} with {awayTeamPoints}, its form which is {awayTeamForm} without mentioning the code, average goals for {awayTeam} {awayTeamGoalsStats}
-- a paragraph about head to head between the 2 teams which is: {head2head}. don't mention number just the general picture, and also the prediction and odds based on online search and the information mentioned above
-- The following are the expected goals the two teams averaged until now in the league. Expected goals(xG) of {homeTeam}({homeXG}) and expected goals of {awayTeam}({awayXG})
-- The following key players will be sidelined for {homeTeam}: {homeTeamSidelinedPlayers} and {awayTeamSidelinedPlayers} for {awayTeam}
+Based on the following information generate an article with the prediction of the football match described.  
+
+Consider the following:
+- {homeTeam} went or remained {homeTeamRankStatus} to {homeTeamRank} in standings with {homeTeamPoints} points, its form which is {homeTeamForm}, average goals for {homeTeam} is {homeTeamGoalsStats}
+- {awayTeam} went or remained {awayTeamRankStatus} to {awayTeamRank} in standings with {awayTeamPoints} points, its form which is {awayTeamForm}, average goals for {awayTeam} is {awayTeamGoalsStats}
+- head to head between the 2 teams which is: {head2head},
+- the average expected goals the two teams until now in the league: {homeTeam}-{homeXG}, {awayTeam}-{awayXG}
+- the key players will be sidelined for {homeTeam}: {homeTeamSidelinedPlayers}, and for {awayTeam}: {awayTeamSidelinedPlayers}
+
+Use mathematical probabilities with the provided data and give a prediction with the outcome of the game.
+Tone:
+
+Analytical, insightful, and knowledgeable, but also approachable and exciting to reflect the thrill of football.
+Voice:
+
+Professional and expert yet engaging, aiming to educate and guide users without overwhelming them with jargon.
+Consistent use of terms that football fans understand, with occasional light-hearted humor.
+
  

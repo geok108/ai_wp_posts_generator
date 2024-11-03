@@ -12,7 +12,7 @@ class OllamaHelper:
         
 
         stream = ollama.chat(
-            model='qwen2.5',
+            model='llama3.1',
             messages=[{'role': 'user', 'content': prompt}],
             stream=False,
         )
