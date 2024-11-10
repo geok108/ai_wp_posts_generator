@@ -1,19 +1,25 @@
-Based on the following information generate an article with the prediction of the football match described.  
 
-Consider the following:
-- {homeTeam} went or remained {homeTeamRankStatus} to {homeTeamRank} in standings with {homeTeamPoints} points, its form which is {homeTeamForm}, average goals for {homeTeam} is {homeTeamGoalsStats}
-- {awayTeam} went or remained {awayTeamRankStatus} to {awayTeamRank} in standings with {awayTeamPoints} points, its form which is {awayTeamForm}, average goals for {awayTeam} is {awayTeamGoalsStats}
-- head to head between the 2 teams which is: {head2head},
-- the average expected goals the two teams until now in the league: {homeTeam}-{homeXG}, {awayTeam}-{awayXG}
-- the key players will be sidelined for {homeTeam}: {homeTeamSidelinedPlayers}, and for {awayTeam}: {awayTeamSidelinedPlayers}
+Here is the data for an upcoming football match:
+- Recent form: ({homeTeam} form:{homeTeamForm}. {awayTeam} form: {awayTeamForm})
+- League standings: ({homeTeam}({homeTeamRankStatus}) to {homeTeamRank} in standings with {homeTeamPoints} points. {awayTeam}({awayTeamRankStatus}) to {awayTeamRank} in standings with {awayTeamPoints} points)
+- Goals scored/conceded: ({homeTeam}: {homeTeamGoalsStats}. {awayTeam}: {awayTeamGoalsStats})
+- Head-to-head record: ({head2head})
+- average xG(expected goals to score): ({homeTeam}-{homeXG}, {awayTeam}-{awayXG})
+- Injuries and suspensions: ({homeTeam}: {homeTeamSidelinedPlayers}. {awayTeam}: {awayTeamSidelinedPlayers})
 
-Use mathematical probabilities with the provided data and give a prediction with the outcome of the game.
-Tone:
+Justify predictions by discussing the following:
+1. The current form of both teams and how it influences their chances of winning or drawing.
+2. The goal-scoring and defensive records of each team, particularly in home and away matches.
+3. How xG values reflect the likely attacking and defensive balance in the match.
+4. The potential impact of injuries or key player absences on team performance.
 
-Analytical, insightful, and knowledgeable, but also approachable and exciting to reflect the thrill of football.
-Voice:
+Conclude with a prediction about:
+1. The match outcome (1X2) 
+2. The total goals scored will be over or under 1.5, 2.5, 3.5 or 4.5
+3. Both teams to score
 
-Professional and expert yet engaging, aiming to educate and guide users without overwhelming them with jargon.
-Consistent use of terms that football fans understand, with occasional light-hearted humor.
 
- 
+Use betting terms and an insightful, Analytical and friendly tone.
+
+Prepare the text in html format with H2 headings and line breaks after the end of each section.
+

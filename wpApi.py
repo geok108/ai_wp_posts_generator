@@ -3,20 +3,22 @@ import requests
 class WPApi:
 
     def __init__(self):
-        self.site_url = 'http://localhost/wpdevninja'
+        self.site_url = 'https://wpdevninja.com/footballpredictions'
         self.endpoint = '/wp-json/wp/v2/posts'
 
-    def createPost(self, title, content):
+    def createPost(self, title, content, categories, tags):
         # The post you want to create
         post_data = {
             'title': title,
             'content': content,
+            'categories': categories,
+            'tags': tags,
             'status': 'draft'  # Use 'draft' to create a draft post
         }
         # Complete URL
         url = f"{self.site_url}{self.endpoint}"
         headers={
-            "Authorization":"Basic YWRtaW46YWRtaW4="
+            "Authorization":"Basic aW1ibHVlOncyTVQgMHgxYSBUTkJWIFYzQUwgcXNGaiB0VFRk"
         }
         # Make the POST request
         print(url)

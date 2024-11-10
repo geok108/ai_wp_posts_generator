@@ -11,13 +11,23 @@ wpApi = WPApi()
 
 def isSidelined(playerId, fixtureDate):
 	sidelinedPlayer = footballData.getSidelinedPlayer(playerId)
-	absenceEndDate = None if sidelinedPlayer["response"][0]["end"] is None or sidelinedPlayer["results"] == 0 else datetime.strptime(sidelinedPlayer["response"][0]["end"], "%Y-%m-%d")
+	absenceEndDate = None if sidelinedPlayer["results"] == 0 or sidelinedPlayer["response"][0]["end"] is None else datetime.strptime(sidelinedPlayer["response"][0]["end"], "%Y-%m-%d")
 	fixtureDate = datetime.strptime(fixtureDate, "%Y-%m-%d")
 
 	if(absenceEndDate is None or absenceEndDate > fixtureDate):
 		return True
 	
 	return False
+
+def getCategories(leagues):
+	leagueIdsDict = {'Premier League': 1}
+	leagueIds = [leagueIdsDict[key] for key in leagues if key in leagueIdsDict]
+	return leagueIds
+
+def getCategories(tags):
+	tagIdsDict = {'Premier League': 1}
+	tagIds = [tagIdsDict[key] for key in tags if key in tagIdsDict]
+	return tagIds
 
 currentRound = footballData.getCurrentRound()
 print(currentRound)
@@ -26,14 +36,23 @@ currentRoundFixtures = footballData.getCurrentRoundFixtures(currentRound)
 
 for fixture in currentRoundFixtures["response"]:
 	print("-------------FIXTURE " + fixture["teams"]["home"]["name"] + " vs " + fixture["teams"]["away"]["name"] + "-------------")
-	
+	league = fixture["league"]["name"]
+	leagueLogo = fixture["league"]["logo"]
+	round = fixture["league"]["round"]
+	flag=fixture["league"]["flag"]
+	venue = fixture['fixture']['venue']['name'] + ', ' + fixture['fixture']['venue']['city']
+	referee = fixture['fixture']['referee']
+	homeImage = fixture['teams']['home']['logo']
+	awayImage = fixture['teams']['away']['logo']
+
 	homeTeamStanding = footballData.getTeamStanding(fixture["teams"]["home"]["id"])
 	awayTeamStanding = footballData.getTeamStanding(fixture["teams"]["away"]["id"])
 
 	date_object = datetime.fromisoformat(fixture["fixture"]["date"])
-
+	fixtureDateLong = date_object.strftime("%A, %d %B %Y")
 	fixtureDate = date_object.strftime("%d/%m/%Y")
-	
+	fixtureTime = date_object.strftime("%H:%M")
+
 	lastFiveGamesFormHomeTeam = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["form"][-5:]
 	lastFiveGamesFormAwayTeam = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["form"][-5:]	
 
@@ -122,8 +141,18 @@ for fixture in currentRoundFixtures["response"]:
 		promptTemplate = re.sub(key, value, promptTemplate)
 	
 	res = ollama.ChatOllama(promptTemplate)
-	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate + " Prediction"
+	with open('post-header.html', 'r') as file:
+		file_content = file.read()
+	file_content = file_content.replace("{homeTeamBadge}", homeImage)
+	file_content = file_content.replace("{matchDate}", fixtureDateLong)
+	file_content = file_content.replace("{referee}", referee)
+	file_content = file_content.replace("{venue}", venue)
+	file_content = file_content.replace("{matchTime}", fixtureTime)
+	file_content = file_content.replace("{awayTeamBadge}", awayImage)
+
+	postContent = file_content + res
+	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate
 	print("CREATING WP POST...")
-	wpApi.createPost(postTitle, res)
+	wpApi.createPost(postTitle, postContent, [league], [fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"]])
 	print("WP POST CREATED")
 
