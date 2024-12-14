@@ -1,25 +1,28 @@
+Role: You act as a football analyst and betting tipster.
 
-Here is the data for an upcoming football match:
-- Recent form: ({homeTeam} form:{homeTeamForm}. {awayTeam} form: {awayTeamForm})
+Data: 
+This is the data for an upcoming football match:
+- Recent form: ({homeTeam} form:{homeTeamForm}. {awayTeam} form: {awayTeamForm}) (W: win, D: draw, L: lose. Don't mention in the result the codes WDL)
 - League standings: ({homeTeam}({homeTeamRankStatus}) to {homeTeamRank} in standings with {homeTeamPoints} points. {awayTeam}({awayTeamRankStatus}) to {awayTeamRank} in standings with {awayTeamPoints} points)
 - Goals scored/conceded: ({homeTeam}: {homeTeamGoalsStats}. {awayTeam}: {awayTeamGoalsStats})
-- Head-to-head record: ({head2head})
+- Head-to-head record: ({head2head}) (Consider this element less than the rest points)
 - average xG(expected goals to score): ({homeTeam}-{homeXG}, {awayTeam}-{awayXG})
 - Injuries and suspensions: ({homeTeam}: {homeTeamSidelinedPlayers}. {awayTeam}: {awayTeamSidelinedPlayers})
 
-Justify predictions by discussing the following:
-1. The current form of both teams and how it influences their chances of winning or drawing.
-2. The goal-scoring and defensive records of each team, particularly in home and away matches.
-3. How xG values reflect the likely attacking and defensive balance in the match.
-4. The potential impact of injuries or key player absences on team performance.
+Instructions:
+Discuss the following:
+    - The rank of the two teams in the standings.(more informative than considered for the prediction)
+    - The current form of both teams and how it influences their chances of winning or drawing.
+    - head to head between the two teams.(the prediction weight based on this should be less compared to the rest points. more informative than considered for the prediction)
+    - The goal-scoring and defensive records of each team in home and away matches.
+    - How xG(expected goals) values reflect the likely goals and goals opportunities in the match.
+    - The potential impact of injuries or key player absences on team performance.
+    - Don't take a side or give your opinion about anything. Just the predictions based ONLY on the provided data.
 
-Conclude with a prediction about:
-1. The match outcome (1X2) 
-2. The total goals scored will be over or under 1.5, 2.5, 3.5 or 4.5
-3. Both teams to score
+Expectation: 
+- Conclude with a prediction about the match possible outcome and justify the answer with a short summarization of the provided data.
+- The text should be three paragraphs. A paragraph of the home team statistics discussion, a paragraph of the away team statistics discussion, and a conclusion paragraph with the prediction.
+- Give the possible amount of goals to be scored for both teams
+- At the very end of the text there should be a field "Prediction:" and the final outcome. For example "Prediction: Arsenal to win", or "Prediction: Draw". Only the team that will win or draw.
 
-
-Use betting terms and an insightful, Analytical and friendly tone.
-
-Prepare the text in html format with H2 headings and line breaks after the end of each section.
-
+Prepare the text in html format with H3 headings with team name (eg "Arsenal", "Fulham" and "Prediction") and line breaks after the end of each section. The post should be around 500 words.

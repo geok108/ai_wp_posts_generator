@@ -1,8 +1,22 @@
-<div class="match-info">
-    <div class="team">
-        <img src="{homeTeamBadge}" alt="Team A Badge">
+<div class="row match-info hideOnMobile">
+    <div class="col-4 team">
+        <img src="{homeTeamBadge}" class="teamBadge" alt="Team A Badge">
     </div>
 
+    <div class="col-4 date-ref-venue">
+        <p><strong>Date: </strong>{matchDate}</p>
+        <p><strong>Time: </strong>{matchTime}</p>
+        <p><strong>Referee: </strong>{referee}</p>
+        <p><strong>Venue: </strong>{venue}</p>
+    </div>
+
+    <div class="col-4 team">
+        <img src="{awayTeamBadge}" class="teamBadge" alt="Team B Badge">
+    </div>
+</div>
+
+<div class="match-info showOnMobile">
+  
     <div class="date-ref-venue">
         <p><strong>Date: </strong>{matchDate}</p>
         <p><strong>Time: </strong>{matchTime}</p>
@@ -10,7 +24,5 @@
         <p><strong>Venue: </strong>{venue}</p>
     </div>
 
-    <div class="team">
-        <img src="{awayTeamBadge}" alt="Team B Badge">
-    </div>
 </div>
+<br>

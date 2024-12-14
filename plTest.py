@@ -3,6 +3,7 @@ from datetime import datetime
 import re
 from ollamaHelper import OllamaHelper
 from wpApi import WPApi
+import re
 import time
 
 footballData = FootballApi("39", "2024")
@@ -29,6 +30,7 @@ def getCategories(tags):
 	tagIds = [tagIdsDict[key] for key in tags if key in tagIdsDict]
 	return tagIds
 
+start_time = time.time()
 currentRound = footballData.getCurrentRound()
 print(currentRound)
 
@@ -57,13 +59,13 @@ for fixture in currentRoundFixtures["response"]:
 	lastFiveGamesFormAwayTeam = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["form"][-5:]	
 
 	homeTeamGoalsForInHome = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["for"]["average"]["home"]
-	homeTeamGoalsForAway = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["for"]["average"]["away"]
+	# homeTeamGoalsForAway = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["for"]["average"]["away"]
 	homeTeamGoalsAgainstInHome = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["against"]["average"]["home"]
-	homeTeamGoalsAgainstAway = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["against"]["average"]["away"]
+	# homeTeamGoalsAgainstAway = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["against"]["average"]["away"]
 
-	awayTeamGoalsForInHome = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["goals"]["for"]["average"]["home"]
+	# awayTeamGoalsForInHome = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["goals"]["for"]["average"]["home"]
 	awayTeamGoalsForAway = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["goals"]["for"]["average"]["away"]
-	awayTeamGoalsAgainstInHome = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["goals"]["against"]["average"]["home"]
+	# awayTeamGoalsAgainstInHome = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["goals"]["against"]["average"]["home"]
 	awayTeamGoalsAgainstAway = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["goals"]["against"]["average"]["away"]
 	
 	h2h = footballData.getHeadToHead(fixture["teams"]["home"]["id"], fixture["teams"]["away"]["id"])
@@ -124,10 +126,14 @@ for fixture in currentRoundFixtures["response"]:
 								 + ", and " + str(drawsCount) + " draws.",
 		"{homeTeamForm}": lastFiveGamesFormHomeTeam,
 		"{awayTeamForm}": lastFiveGamesFormAwayTeam,
-		"{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome + ", and goals scored away " + homeTeamGoalsForAway
-								+ ", goals conceded in home " + homeTeamGoalsAgainstInHome + ", and goals conceded away " + homeTeamGoalsAgainstAway,
-		"{awayTeamGoalsStats}": "goals scored in home " + awayTeamGoalsForInHome + ", and goals scored away " + awayTeamGoalsForAway
-								+ ", goals conceded in home " + awayTeamGoalsAgainstInHome + ", and goals conceded away " + awayTeamGoalsAgainstAway,
+		# "{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome + ", and goals scored away " + homeTeamGoalsForAway
+		# 						+ ", goals conceded in home " + homeTeamGoalsAgainstInHome + ", and goals conceded away " + homeTeamGoalsAgainstAway,
+		# "{awayTeamGoalsStats}": "goals scored in home " + awayTeamGoalsForInHome + ", and goals scored away " + awayTeamGoalsForAway
+		# 						+ ", goals conceded in home " + awayTeamGoalsAgainstInHome + ", and goals conceded away " + awayTeamGoalsAgainstAway,
+		"{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome 
+								+ ", goals conceded in home " + homeTeamGoalsAgainstInHome,
+		"{awayTeamGoalsStats}": "goals scored away " + awayTeamGoalsForAway
+								+ ", goals conceded away " + awayTeamGoalsAgainstAway,						
 		"{homeXG}": homeTeamXG,
 		"{awayXG}": awayTeamXG,
 		"{homeTeamSidelinedPlayers}": ",".join(homeTeamKeyPlayersAbsences) if len(homeTeamKeyPlayersAbsences) > 0 else " None",
@@ -149,10 +155,19 @@ for fixture in currentRoundFixtures["response"]:
 	file_content = file_content.replace("{venue}", venue)
 	file_content = file_content.replace("{matchTime}", fixtureTime)
 	file_content = file_content.replace("{awayTeamBadge}", awayImage)
-
+	match = re.search(r'Prediction:\s*(\w+)', res)
+	finalPrediction = None
+	if match:
+		finalPrediction = match.group(1)
+	
 	postContent = file_content + res
 	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate
 	print("CREATING WP POST...")
-	wpApi.createPost(postTitle, postContent, [league], [fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"]])
-	print("WP POST CREATED")
-
+	# wpApi.createPost(postTitle, postContent, [league], [fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"]])
+	wpPostCreated = wpApi.createPost(postTitle, postContent, fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"], homeImage, awayImage, fixtureDate, fixtureTime, finalPrediction, [1])
+	if(wpPostCreated):
+		print("WP POST CREATED")
+		
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"Operation took {elapsed_time:.4f} seconds")
