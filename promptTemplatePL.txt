@@ -2,12 +2,18 @@ Role: You act as a football analyst and betting tipster.
 
 Data: 
 This is the data for an upcoming football match:
-- Recent form: ({homeTeam} form:{homeTeamForm}. {awayTeam} form: {awayTeamForm}) (W: win, D: draw, L: lose. Don't mention in the result the codes WDL)
-- League standings: ({homeTeam}({homeTeamRankStatus}) to {homeTeamRank} in standings with {homeTeamPoints} points. {awayTeam}({awayTeamRankStatus}) to {awayTeamRank} in standings with {awayTeamPoints} points)
-- Goals scored/conceded: ({homeTeam}: {homeTeamGoalsStats}. {awayTeam}: {awayTeamGoalsStats})
-- Head-to-head record: ({head2head}) (Consider this element less than the rest points)
-- average xG(expected goals to score): ({homeTeam}-{homeXG}, {awayTeam}-{awayXG})
-- Injuries and suspensions: ({homeTeam}: {homeTeamSidelinedPlayers}. {awayTeam}: {awayTeamSidelinedPlayers})
+- Recent form
+ {homeTeam} form:{homeTeamForm}. {awayTeam} form: {awayTeamForm}
+- League standings
+{homeTeam}({homeTeamRankStatus}) to {homeTeamRank} in standings with {homeTeamPoints} points. {awayTeam}({awayTeamRankStatus}) to {awayTeamRank} in standings with {awayTeamPoints} points
+- Goals scored/conceded: 
+{homeTeam}: {homeTeamGoalsStats}. {awayTeam}: {awayTeamGoalsStats}
+- Head-to-head record: 
+{head2head} (Consider this element less than the rest points)
+- Average xG(expected goals to score):
+{homeTeam}-{homeXG}, {awayTeam}-{awayXG}
+- Injuries and suspensions: 
+{homeTeam}: {homeTeamSidelinedPlayers}. {awayTeam}: {awayTeamSidelinedPlayers}
 
 Instructions:
 Discuss the following:

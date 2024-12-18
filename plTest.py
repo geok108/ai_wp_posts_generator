@@ -30,6 +30,19 @@ def getCategories(tags):
 	tagIds = [tagIdsDict[key] for key in tags if key in tagIdsDict]
 	return tagIds
 
+def calculate_points(results):
+    points = {
+        'W': 3,
+        'D': 1,
+        'L': 0
+    }
+    
+    total_points = 0
+    for result in results:
+        total_points += points.get(result, 0)  # Get points based on result
+    
+    return total_points
+
 start_time = time.time()
 currentRound = footballData.getCurrentRound()
 print(currentRound)
@@ -55,8 +68,19 @@ for fixture in currentRoundFixtures["response"]:
 	fixtureDate = date_object.strftime("%d/%m/%Y")
 	fixtureTime = date_object.strftime("%H:%M")
 
-	lastFiveGamesFormHomeTeam = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["form"][-5:]
-	lastFiveGamesFormAwayTeam = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["form"][-5:]	
+	mapping = {
+		'W': 'win',
+		'D': 'draw',
+		'L': 'loss'
+	}
+
+	homeTeamLastFiveGames = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["form"][-5:]
+	awayTeamLastFiveGames = footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["form"][-5:]
+	lastFiveGamesFormHomeTeam = ', '.join([mapping[char] for char in homeTeamLastFiveGames])
+	lastFiveGamesFormAwayTeam = ', '.join([mapping[char] for char in awayTeamLastFiveGames])
+
+	homeTeamLastFiveGamesPoints = calculate_points(homeTeamLastFiveGames)
+	awayTeamLastFiveGamesPoints = calculate_points(awayTeamLastFiveGames)
 
 	homeTeamGoalsForInHome = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["for"]["average"]["home"]
 	# homeTeamGoalsForAway = footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["for"]["average"]["away"]
@@ -140,13 +164,7 @@ for fixture in currentRoundFixtures["response"]:
 		"{awayTeamSidelinedPlayers}": ",".join(awayTeamKeyPlayersAbsences) if len(awayTeamKeyPlayersAbsences) > 0 else " None"
 	}
 
-	with open("promptTemplatePL.txt", 'r', encoding='utf-8') as file:
-		promptTemplate = file.read()
-
-	for key, value in placeholders.items():
-		promptTemplate = re.sub(key, value, promptTemplate)
-	
-	res = ollama.ChatOllama(promptTemplate)
+	#prepare post header
 	with open('post-header.html', 'r') as file:
 		file_content = file.read()
 	file_content = file_content.replace("{homeTeamBadge}", homeImage)
@@ -155,12 +173,38 @@ for fixture in currentRoundFixtures["response"]:
 	file_content = file_content.replace("{venue}", venue)
 	file_content = file_content.replace("{matchTime}", fixtureTime)
 	file_content = file_content.replace("{awayTeamBadge}", awayImage)
-	match = re.search(r'Prediction:\s*(\w+)', res)
+	
+	#prepare team stats table
+	with open('team-stats-comparison.html', 'r') as file:
+		team_stats_file_content = file.read()
+	team_stats_file_content = team_stats_file_content.replace("{homeTeam}", fixture["teams"]["home"]["name"])
+	team_stats_file_content = team_stats_file_content.replace("{awayTeam}", fixture["teams"]["away"]["name"])
+	team_stats_file_content = team_stats_file_content.replace("{homeTeamPoints}", str(homeTeamStanding["points"]))
+	team_stats_file_content = team_stats_file_content.replace("{awayTeamPoints}", str(awayTeamStanding["points"]))
+	team_stats_file_content = team_stats_file_content.replace("{homeTeamLastFiveGamesPoints}", str(homeTeamLastFiveGamesPoints))
+	team_stats_file_content = team_stats_file_content.replace("{awayTeamLastFiveGamesPoints}", str(awayTeamLastFiveGamesPoints))
+	team_stats_file_content = team_stats_file_content.replace("{homeTeamXG}", homeTeamXG)
+	team_stats_file_content = team_stats_file_content.replace("{awayTeamXG}", awayTeamXG)
+	team_stats_file_content = team_stats_file_content.replace("{homeTeamAvgGoalsScored}", homeTeamGoalsForInHome)
+	team_stats_file_content = team_stats_file_content.replace("{awayTeamAvgGoalsScored}", awayTeamGoalsForAway)
+	team_stats_file_content = team_stats_file_content.replace("{homeTeamAvgGoalsConceded}", homeTeamGoalsAgainstInHome)
+	team_stats_file_content = team_stats_file_content.replace("{awayTeamAvgGoalsConceded}", awayTeamGoalsAgainstAway)
+	
+	#generate post with ollama
+	with open("promptTemplatePL.txt", 'r', encoding='utf-8') as file:
+		promptTemplate = file.read()
+
+	for key, value in placeholders.items():
+		promptTemplate = re.sub(key, value, promptTemplate)
+	
+	res = ollama.ChatOllama(promptTemplate)
+
+	match = re.search(r'Prediction:\s*(.+)', res)
 	finalPrediction = None
 	if match:
-		finalPrediction = match.group(1)
-	
-	postContent = file_content + res
+		finalPrediction = match.group(1).strip()
+
+	postContent = file_content + res + team_stats_file_content
 	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate
 	print("CREATING WP POST...")
 	# wpApi.createPost(postTitle, postContent, [league], [fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"]])
