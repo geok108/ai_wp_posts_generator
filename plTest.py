@@ -149,6 +149,8 @@ for fixture in currentRoundFixtures["response"]:
 								 + str(homeTeamWins) + " times, " + fixture["teams"]["away"]["name"] + " won " + str(awayTeamWins)
 								 + ", and " + str(drawsCount) + " draws.",
 		"{homeTeamForm}": lastFiveGamesFormHomeTeam,
+		"{homeTeamLastFiveGamesPoints}": str(homeTeamLastFiveGamesPoints),
+		"{awayTeamLastFiveGamesPoints}": str(awayTeamLastFiveGamesPoints),
 		"{awayTeamForm}": lastFiveGamesFormAwayTeam,
 		# "{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome + ", and goals scored away " + homeTeamGoalsForAway
 		# 						+ ", goals conceded in home " + homeTeamGoalsAgainstInHome + ", and goals conceded away " + homeTeamGoalsAgainstAway,
@@ -204,6 +206,9 @@ for fixture in currentRoundFixtures["response"]:
 	if match:
 		finalPrediction = match.group(1).strip()
 
+	file_content = file_content.rstrip()
+	res = res.rstrip()
+	team_stats_file_content = team_stats_file_content.rstrip()
 	postContent = file_content + res + team_stats_file_content
 	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate
 	print("CREATING WP POST...")

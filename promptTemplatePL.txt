@@ -3,7 +3,7 @@ Role: You act as a football analyst and betting tipster.
 Data: 
 This is the data for an upcoming football match:
 - Recent form
- {homeTeam} form:{homeTeamForm}. {awayTeam} form: {awayTeamForm}
+ {homeTeam} form:{homeTeamForm}(starting from the oldest result), points: {homeTeamLastFiveGamesPoints}. {awayTeam} form: {awayTeamForm}(starting from the oldest result), points: awayTeamLastFiveGamesPoints
 - League standings
 {homeTeam}({homeTeamRankStatus}) to {homeTeamRank} in standings with {homeTeamPoints} points. {awayTeam}({awayTeamRankStatus}) to {awayTeamRank} in standings with {awayTeamPoints} points
 - Goals scored/conceded: 
@@ -17,18 +17,18 @@ This is the data for an upcoming football match:
 
 Instructions:
 Discuss the following:
-    - The rank of the two teams in the standings.(more informative than considered for the prediction)
+    - The rank of the two teams in the standings.
     - The current form of both teams and how it influences their chances of winning or drawing.
-    - head to head between the two teams.(the prediction weight based on this should be less compared to the rest points. more informative than considered for the prediction)
+    - head to head between the two teams.
     - The goal-scoring and defensive records of each team in home and away matches.
     - How xG(expected goals) values reflect the likely goals and goals opportunities in the match.
     - The potential impact of injuries or key player absences on team performance.
-    - Don't take a side or give your opinion about anything. Just the predictions based ONLY on the provided data.
-
+    - The match prediction based ONLY on the provided data.
+    - Prepare the text in html format with H3 headings with team names and the prediction paragraph (eg "TeamA", "TeamB" and "Prediction") and line breaks after the end of each section. 
+    - The post should be around 1000 words.
+    
 Expectation: 
 - Conclude with a prediction about the match possible outcome and justify the answer with a short summarization of the provided data.
 - The text should be three paragraphs. A paragraph of the home team statistics discussion, a paragraph of the away team statistics discussion, and a conclusion paragraph with the prediction.
 - Give the possible amount of goals to be scored for both teams
-- At the very end of the text there should be a field "Prediction:" and the final outcome. For example "Prediction: Arsenal to win", or "Prediction: Draw". Only the team that will win or draw.
-
-Prepare the text in html format with H3 headings with team name (eg "Arsenal", "Fulham" and "Prediction") and line breaks after the end of each section. The post should be around 500 words.
+- At the very end of the text there should be a field in bold "Prediction:" and the final outcome in bold. For example "Prediction: Arsenal to win", or "Prediction: Draw". Only the team that will win or draw.

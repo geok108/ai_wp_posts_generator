@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Stats Comparison</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
-</head>
-<body>
 
 <div class="container mt-5">
     <h2 class="text-center">Team Stats</h2>
@@ -41,44 +31,14 @@
                 <td class="team1" data-value="{homeTeamAvgGoalsScored}">{homeTeamAvgGoalsScored}</td>
                 <td class="team2" data-value="{awayTeamAvgGoalsScored}">{awayTeamAvgGoalsScored}</td>
             </tr>
-            <tr>
+            <tr id="concededGoals">
                 <td>Average Goals Conceded</td>
                 <td class="team1" data-value="{homeTeamAvgGoalsConceded}">{homeTeamAvgGoalsConceded}</td>
                 <td class="team2" data-value="{awayTeamAvgGoalsScored}">{awayTeamAvgGoalsConceded}</td>
             </tr>
         </tbody>
     </table>
-    *Average goals scored/conceded home for home team, and scored away for away team
+    *Average goals scored/conceded in home for home team, and scored/conceded away for away team
 
 </div>
 
-
-<!-- Bootstrap JS and Popper.js -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
-
-<!-- Custom JS to Compare Stats -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Get all rows from the table
-        let rows = document.querySelectorAll("#statsTable tr");
-
-        rows.forEach(row => {
-            // Get team 1 and team 2 values
-            let team1Cell = row.querySelector('.team1');
-            let team2Cell = row.querySelector('.team2');
-
-            let team1Value = parseFloat(team1Cell.getAttribute('data-value'));
-            let team2Value = parseFloat(team2Cell.getAttribute('data-value'));
-
-            // Compare the values and bold the higher one
-            if (team1Value > team2Value) {
-                team1Cell.style.fontWeight = "bold";
-            } else if (team2Value > team1Value) {
-                team2Cell.style.fontWeight = "bold";
-            }
-        });
-    });
-</script>
-
-</body>
-</html>
