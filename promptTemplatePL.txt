@@ -3,13 +3,13 @@ Role: You act as a football analyst and betting tipster.
 Data: 
 This is the data for an upcoming football match:
 - Recent form
- {homeTeam} form:{homeTeamForm}(starting from the oldest result), points: {homeTeamLastFiveGamesPoints}. {awayTeam} form: {awayTeamForm}(starting from the oldest result), points: awayTeamLastFiveGamesPoints
+ {homeTeam} form:{homeTeamForm}(starting from the most recent result), points: {homeTeamLastFiveGamesPoints}. {awayTeam} form: {awayTeamForm}(starting from the most recent result), points: awayTeamLastFiveGamesPoints
 - League standings
 {homeTeam}({homeTeamRankStatus}) to {homeTeamRank} in standings with {homeTeamPoints} points. {awayTeam}({awayTeamRankStatus}) to {awayTeamRank} in standings with {awayTeamPoints} points
 - Goals scored/conceded: 
 {homeTeam}: {homeTeamGoalsStats}. {awayTeam}: {awayTeamGoalsStats}
 - Head-to-head record: 
-{head2head} (Consider this element less than the rest points)
+{head2head} (Consider this point less than the rest points)
 - Average xG(expected goals to score):
 {homeTeam}-{homeXG}, {awayTeam}-{awayXG}
 - Injuries and suspensions: 
@@ -25,10 +25,10 @@ Discuss the following:
     - The potential impact of injuries or key player absences on team performance.
     - The match prediction based ONLY on the provided data.
     - Prepare the text in html format with H3 headings with team names and the prediction paragraph (eg "TeamA", "TeamB" and "Prediction") and line breaks after the end of each section. 
-    - The post should be around 1000 words.
+    - Write around 500 words.
     
 Expectation: 
 - Conclude with a prediction about the match possible outcome and justify the answer with a short summarization of the provided data.
 - The text should be three paragraphs. A paragraph of the home team statistics discussion, a paragraph of the away team statistics discussion, and a conclusion paragraph with the prediction.
 - Give the possible amount of goals to be scored for both teams
-- At the very end of the text there should be a field in bold "Prediction:" and the final outcome in bold. For example "Prediction: Arsenal to win", or "Prediction: Draw". Only the team that will win or draw.
+- At the very end of the text there should be a field in bold "Prediction:" and the final outcome in bold(<strong> html tags). For example "Prediction: 1"(home team win), "Prediction: X"(draw), or "Prediction: 2"(away team win).

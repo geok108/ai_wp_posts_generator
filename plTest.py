@@ -1,5 +1,5 @@
 from footballApi import FootballApi 
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 from ollamaHelper import OllamaHelper
 from wpApi import WPApi
@@ -64,8 +64,16 @@ for fixture in currentRoundFixtures["response"]:
 	awayTeamStanding = footballData.getTeamStanding(fixture["teams"]["away"]["id"])
 
 	date_object = datetime.fromisoformat(fixture["fixture"]["date"])
+	if date_object.tzinfo is None:
+   		date_object = date_object.replace(tzinfo=timezone.utc)
+		   
+	now = datetime.now(timezone.utc)
+
+	if date_object < now:
+		continue
 	fixtureDateLong = date_object.strftime("%A, %d %B %Y")
-	fixtureDate = date_object.strftime("%d/%m/%Y")
+	
+	fixtureDate = date_object.strftime("%Y-%m-%d")
 	fixtureTime = date_object.strftime("%H:%M")
 
 	mapping = {
@@ -171,6 +179,7 @@ for fixture in currentRoundFixtures["response"]:
 		file_content = file.read()
 	file_content = file_content.replace("{homeTeamBadge}", homeImage)
 	file_content = file_content.replace("{matchDate}", fixtureDateLong)
+	file_content = file_content.replace("{round}", round)
 	file_content = file_content.replace("{referee}", referee)
 	file_content = file_content.replace("{venue}", venue)
 	file_content = file_content.replace("{matchTime}", fixtureTime)
@@ -192,6 +201,15 @@ for fixture in currentRoundFixtures["response"]:
 	team_stats_file_content = team_stats_file_content.replace("{homeTeamAvgGoalsConceded}", homeTeamGoalsAgainstInHome)
 	team_stats_file_content = team_stats_file_content.replace("{awayTeamAvgGoalsConceded}", awayTeamGoalsAgainstAway)
 	
+	with open('game-widget.html', 'r') as file:
+		game_widget = file.read()
+		game_widget = game_widget.replace("{fixtureId}", str(fixture["fixture"]["id"]))
+
+	with open('standings-widget.html', 'r') as file:
+		standings_widget = file.read()
+		standings_widget = standings_widget.replace("{leagueId}", str(fixture["league"]["id"]))
+		standings_widget = standings_widget.replace("{season}", str(fixture["league"]["season"]))
+
 	#generate post with ollama
 	with open("promptTemplatePL.txt", 'r', encoding='utf-8') as file:
 		promptTemplate = file.read()
@@ -201,7 +219,7 @@ for fixture in currentRoundFixtures["response"]:
 	
 	res = ollama.ChatOllama(promptTemplate)
 
-	match = re.search(r'Prediction:\s*(.+)', res)
+	match = re.search(r'Prediction:\s*(\d+)', res)
 	finalPrediction = None
 	if match:
 		finalPrediction = match.group(1).strip()
@@ -209,13 +227,15 @@ for fixture in currentRoundFixtures["response"]:
 	file_content = file_content.rstrip()
 	res = res.rstrip()
 	team_stats_file_content = team_stats_file_content.rstrip()
-	postContent = file_content + res + team_stats_file_content
-	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " " + fixtureDate
+	postContent = game_widget + res + team_stats_file_content + standings_widget
+	postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " Analysis and Prediction"
 	print("CREATING WP POST...")
 	# wpApi.createPost(postTitle, postContent, [league], [fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"]])
-	wpPostCreated = wpApi.createPost(postTitle, postContent, fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"], homeImage, awayImage, fixtureDate, fixtureTime, finalPrediction, [1])
+	wpPostCreated = wpApi.createPost(postTitle, postContent, fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"], leagueLogo, homeImage, awayImage, fixtureDate, round, fixtureTime, finalPrediction, [1])
 	if(wpPostCreated):
 		print("WP POST CREATED")
+
+	
 		
 end_time = time.time()
 elapsed_time = end_time - start_time
