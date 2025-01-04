@@ -1,5 +1,6 @@
-asd.py
 gptapikey.txt
 /__pycache__
+/helpers/__pycache__
 /venv
 config.json
+/postGenerationScripts

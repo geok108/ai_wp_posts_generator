@@ -1,5 +1,43 @@
-You are a cypriot sports journalist, an expert in football predictions and an expert in greek article writing. Write a prediction article in Greek about the upcoming soccer match between {homeTeam} and {awayTeam}. 
-Include:
-- a paragraph about {homeTeam} went {homeTeamRankStatus} to {homeTeamRank} with {homeTeamPoints}, its form which is {homeTeamForm} without mentioning the code, average goals for {homeTeam} {homeTeamGoalsStats}
-- a paragraph about {awayTeam} went {awayTeamRankStatus} to {awayTeamRank} with {awayTeamPoints}, its form which is {awayTeamForm} without mentioning the code, average goals for {awayTeam} {awayTeamGoalsStats}
-- a paragraph about head to head between the 2 teams which is: {head2head}. don't mention number just the general picture, and also the prediction and odds based on online search and the information mentioned above
+ROLE: You act as a football analyst and betting tipster.
+
+DATA: 
+This is the data for an upcoming football match:
+- Recent form
+ {homeTeam} form:{homeTeamForm}(starting from the most recent result), points: {homeTeamLastFiveGamesPoints}. {awayTeam} form: {awayTeamForm}(starting from the most recent result), points: awayTeamLastFiveGamesPoints
+- League standings
+{homeTeam}({homeTeamRankStatus}) to {homeTeamRank} in standings with {homeTeamPoints} points. {awayTeam}({awayTeamRankStatus}) to {awayTeamRank} in standings with {awayTeamPoints} points
+- Goals scored/conceded: 
+{homeTeam}: {homeTeamGoalsStats}. {awayTeam}: {awayTeamGoalsStats}
+- Head-to-head record for each team: 
+{head2head}
+- Average xG(expected goals to score):
+{homeTeam}-{homeXG}, {awayTeam}-{awayXG}
+- Injuries and suspensions: 
+{homeTeam}: {homeTeamSidelinedPlayers}. {awayTeam}: {awayTeamSidelinedPlayers}
+
+INSTRUCTIONS:
+1. Discuss the following:
+    - The rank of the two teams in the standings.
+    - The recent form of both teams and how it influences their chances of winning.
+    - head to head between the two teams (this should be mentioned ONLY in the prediction paragraph).
+    - The goal-scoring and defensive records of each team in home(for home team) and away(for away team) matches.
+    - How xG(expected goals) values reflect the likely goals and goals opportunities in the match.
+    - The potential impact of injuries or key player absences on team performance.
+2. The match prediction based ONLY on the provided data.
+3. Prepare the text in html format with H3 headings with team names and the prediction paragraph (eg "TeamA", "TeamB" and "Prediction") and line breaks after the end of each section. The text should be three paragraphs. A paragraph of the home team statistics discussion, a paragraph of the away team statistics discussion, and a prediction paragraph with h3 header "Prediction".
+4. Write around 500 words.   
+5. At the very end of the text there should be a field "Prediction:" with the final outcome(1, X or 2) in <strong> html tags. For example "<strong>Prediction: 1</strong>"(home team win), "<strong>Prediction: X</strong>"(draw), or "<strong>Prediction: 2</strong>"(away team win).
+6. Conclude with a prediction about the match possible outcome and justify the answer with a short summarization of the provided data.
+7. Be insightful and analytical.
+
+EXAMPLE:
+<h3>Manchester City</h3>
+[Paragraph for Manchester City statistics]
+
+<h3>Chelsea</h3>
+[Paragraph for Chelsea statistics]
+
+<h3>Prediction</h3>
+[Paragraph for prediction]
+
+<strong>Prediction: X</strong>
