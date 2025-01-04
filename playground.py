@@ -1,35 +1,65 @@
 from footballApi import FootballApi 
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 from ollamaHelper import OllamaHelper
 from wpApi import WPApi
+import re
 import time
 
-footballData = FootballApi()
-ollama = OllamaHelper()
-wpApi = WPApi()
+footyStatsLeagueSlug = "/spain/la-liga"
+wpLeagueCategory = 1
+footballData = FootballApi("140", "2024")
+import os
+import requests
+
+def download_image(image_url, folder_path):
+    # Get the image content from the URL
+    response = requests.get(image_url)
+    
+    if response.status_code == 200:  # If the image is downloaded successfully
+        # Create the folder if it doesn't exist
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        
+        # Extract the image name from the URL
+        image_name = image_url.split("/")[-1]
+        
+        # Create the complete path for saving the image
+        image_path = os.path.join(folder_path, "league-"+image_name)
+        
+        # Write the image data to a file
+        with open(image_path, 'wb') as file:
+            file.write(response.content)
+        
+        print(f"Image saved as: {image_path}")
+    else:
+        print(f"Failed to download image from {image_url}")
 
 
-# res = footballData.getTeamStanding("51", True)
-# footballData.getXG()
-# awayTeamPlayers = footballData.getPlayersStatsByTeam(42)
+start_time = time.time()
+currentRound = footballData.getCurrentRound()
+print(currentRound)
 
-res = footballData.getSidelinedPlayer("22090")
-# res = footballData.getInjuriesByFixture(686308)
-# if(res["results"] > 0):
-#     team1_data = [item for item in res["response"] if item['team']['id'] == 165]
-#     team2_data = [item for item in res["response"] if item['team']['id'] == 168]
-print("dasd")
-# res = ollama.ChatOllama('''You are a football betting tipster expert at what you do with many successes. Write a short post with you are prediction about the upcoming match between Chelsea and Newcastle. For your prediction you should consider the following: 
-#                     a. absences of key players for both teams
-#                     b. the form of both teams and how strong they teams they faced were
-#                     c. their ranks and motives for the standings (eg. to win the championship, to get a place for Europa League)
-#                     d. head 2 head between the two
-#                     e. the expected goals(xG) that each team had until now this season
-#                     f. performance of both teams based on whether they are playing home or away (eg. Team A had only one win away from home until now)
-#                     ''')
-# res = footballData.getPlayersStatsByTeam("51")
-# filteredPlayers = {name: player for name, player in res.items() if player["games"]["rating"] is not None}
-# sortedPlayersBasedOnMinutes = dict(sorted(filteredPlayers.items(), key=lambda item: item[1]["games"]["minutes"], reverse=True)[:15])
-# sortedPlayersBasedOnRating = dict(sorted(sortedPlayersBasedOnMinutes.items(), key=lambda item: item[1]["games"]["rating"], reverse=True)[:5])
+currentRoundFixtures = footballData.getCurrentRoundFixtures(currentRound)
+teamsStr = ""
+for fixture in currentRoundFixtures["response"]:
+    print("-------------FIXTURE " + fixture["teams"]["home"]["name"] + " vs " + fixture["teams"]["away"]["name"] + "-------------")
+    league = fixture["league"]["name"]
+    leagueLogo = fixture["league"]["logo"]
+    round = fixture["league"]["round"]
+    flag=fixture["league"]["flag"]
+    venue = fixture['fixture']['venue']['name'] + ', ' + fixture['fixture']['venue']['city']
+    referee = fixture['fixture']['referee']
+    homeImage = fixture['teams']['home']['logo']
+    awayImage = fixture['teams']['away']['logo']
+    teamsStr = teamsStr+""","""  + fixture['teams']['home']["name"]+""",""" + fixture['teams']['away']["name"]+""",""" 
 
+# with open('example.txt', 'w') as file:
+#     file.write(teamsStr)
+    # download_image(homeImage, "./badges")
+    # download_image(awayImage, "./badges")
+   
+    download_image(leagueLogo, "./badges")
+    exit()
+        
+    
