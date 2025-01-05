@@ -35,6 +35,13 @@ class MatchAnalysisPostGenerator:
     
         return total_points
 
+    def read_prompt_by_lines(self, file_path):
+        prompt = ""
+        with open(file_path, 'r', encoding='utf-8') as file:
+            for line in file:
+                prompt += line  # Add each line to the prompt string, preserving newlines
+        return prompt
+    
     def generate(self, leagueId, season):
         start_time = time.time()
        
@@ -68,26 +75,55 @@ class MatchAnalysisPostGenerator:
                 
             now = datetime.now(timezone.utc)
 
-            if date_object < now:
+            if date_object < now or (date_object - now).days > 10:
                 continue
             fixtureDateLong = date_object.strftime("%A, %d %B %Y")
             
             fixtureDate = date_object.strftime("%Y-%m-%d")
             fixtureTime = date_object.strftime("%H:%M")
 
-            mapping = {
-                'W': 'win',
-                'D': 'draw',
-                'L': 'loss'
-            }
+            homeTeamLastFiveGames = self.footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["form"][-5:][::-1]
+            awayTeamLastFiveGames = self.footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["form"][-5:][::-1]
 
-            homeTeamLastFiveGames = self.footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["form"][-5:]
-            awayTeamLastFiveGames = self.footballData.getTeamStats(fixture["teams"]["away"]["id"])["response"]["form"][-5:]
-            lastFiveGamesFormHomeTeam = ', '.join([mapping[char] for char in homeTeamLastFiveGames])
-            lastFiveGamesFormAwayTeam = ', '.join([mapping[char] for char in awayTeamLastFiveGames])
+            homeTeamMostRecentResult = homeTeamLastFiveGames[0]
+            homeTeamConsecutiveWins = 0
+
+            homeTeamFormText = ""
+            if homeTeamMostRecentResult == 'W':
+                homeTeamConsecutiveWins = 0
+                for result in homeTeamLastFiveGames:
+                    if result == 'W':
+                        homeTeamConsecutiveWins += 1
+                    else:
+                        break
+                homeTeamFormText = " is coming from " + str(homeTeamConsecutiveWins) + "consecutive wins" if homeTeamConsecutiveWins > 1 else " is coming from a win"
+            elif homeTeamMostRecentResult == 'L':
+                homeTeamFormText = " is coming from a loss"
+            else:
+                homeTeamFormText = " is coming from a draw"
+
+            awayTeamMostRecentResult = awayTeamLastFiveGames[0]
+            awayTeamConsecutiveWins = 0
+
+            awayTeamFormText = ""
+            if awayTeamMostRecentResult == 'W':
+                awayTeamConsecutiveWins = 0
+                for result in awayTeamLastFiveGames:
+                    if result == 'W':
+                        awayTeamConsecutiveWins += 1
+                    else:
+                        break
+                awayTeamFormText = " is coming from " + str(awayTeamConsecutiveWins) + "consecutive wins" if awayTeamConsecutiveWins > 1 else " won last game"
+            elif awayTeamMostRecentResult == 'L':
+                awayTeamFormText = " lost last game"
+            else:
+                awayTeamFormText = " got a draw in last game"
 
             homeTeamLastFiveGamesPoints = self._calculate_points(homeTeamLastFiveGames)
             awayTeamLastFiveGamesPoints = self._calculate_points(awayTeamLastFiveGames)
+
+            homeTeamFormText += " in the league and got " + str(homeTeamLastFiveGamesPoints) + " points in the last 5 games out of the 15 points available"
+            awayTeamFormText += " in the league and got " + str(awayTeamLastFiveGamesPoints) + " points in the last 5 games out of the 15 points available"
 
             homeTeamGoalsForInHome = self.footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["for"]["average"]["home"]
             # homeTeamGoalsForAway = self.footballData.getTeamStats(fixture["teams"]["home"]["id"])["response"]["goals"]["for"]["average"]["away"]
@@ -138,7 +174,7 @@ class MatchAnalysisPostGenerator:
             awayTeamKeyPlayersAbsences = []
             for player in awayTeamSortedPlayersBasedOnRating:
                 if(self._isSidelined(player["player"]["id"], date_object.strftime("%Y-%m-%d"))):			
-                    awayTeamKeyPlayersAbsences.append(player["player"]["lastname"])
+                    awayTeamKeyPlayersAbsences.append(player["player"]["lastname"] + " (" + player["statistics"][0]["games"]["position"] + ")")
 
             awayTeamXG = xGData[fixture["teams"]["away"]["name"]]
             
@@ -155,18 +191,14 @@ class MatchAnalysisPostGenerator:
                 "{head2head}": fixture["teams"]["home"]["name"] + " won " 
                                         + str(homeTeamWins) + " times, " + fixture["teams"]["away"]["name"] + " won " + str(awayTeamWins)
                                         + ", and " + str(drawsCount) + " draws.",
-                "{homeTeamForm}": lastFiveGamesFormHomeTeam,
-                "{homeTeamLastFiveGamesPoints}": str(homeTeamLastFiveGamesPoints),
-                "{awayTeamLastFiveGamesPoints}": str(awayTeamLastFiveGamesPoints),
-                "{awayTeamForm}": lastFiveGamesFormAwayTeam,
+                "{homeTeamForm}": homeTeamFormText,
+                "{awayTeamForm}": awayTeamFormText,
                 # "{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome + ", and goals scored away " + homeTeamGoalsForAway
                 # 						+ ", goals conceded in home " + homeTeamGoalsAgainstInHome + ", and goals conceded away " + homeTeamGoalsAgainstAway,
                 # "{awayTeamGoalsStats}": "goals scored in home " + awayTeamGoalsForInHome + ", and goals scored away " + awayTeamGoalsForAway
                 # 						+ ", goals conceded in home " + awayTeamGoalsAgainstInHome + ", and goals conceded away " + awayTeamGoalsAgainstAway,
-                "{homeTeamGoalsStats}": "goals scored in home " + homeTeamGoalsForInHome 
-                                        + ", goals conceded in home " + homeTeamGoalsAgainstInHome,
-                "{awayTeamGoalsStats}": "goals scored away " + awayTeamGoalsForAway
-                                        + ", goals conceded away " + awayTeamGoalsAgainstAway,						
+                "{homeTeamGoalsStats}": fixture["teams"]["home"]["name"] + " scored an average of " + homeTeamGoalsForInHome + " goals in home and conceded an average of " + homeTeamGoalsAgainstInHome + " goals in home",
+                "{awayTeamGoalsStats}": fixture["teams"]["away"]["name"] + " scored an average of " + awayTeamGoalsForAway+ " goals away and conceded an average of " + awayTeamGoalsAgainstAway + " goals in away matches",
                 "{homeXG}": homeTeamXG,
                 "{awayXG}": awayTeamXG,
                 "{homeTeamSidelinedPlayers}": ",".join(homeTeamKeyPlayersAbsences) if len(homeTeamKeyPlayersAbsences) > 0 else " None",
@@ -216,7 +248,7 @@ class MatchAnalysisPostGenerator:
 
             #generate post with ollama
             with open("promptTemplate.txt", 'r', encoding='utf-8') as file:
-                promptTemplate = file.read()
+                promptTemplate = file.read().strip().replace("\n", " ")
 
             for key, value in placeholders.items():
                 promptTemplate = re.sub(key, value, promptTemplate)
