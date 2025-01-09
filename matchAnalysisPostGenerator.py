@@ -51,9 +51,10 @@ class MatchAnalysisPostGenerator:
         currentRoundFixtures = self.footballData.getCurrentRoundFixtures(currentRound)
 
         for fixture in currentRoundFixtures["response"]:
-            # if(fixture["fixture"]["id"] != 1208222):
+            # if(fixture["fixture"]["id"] != 1208659):
             #     continue
             print("-------------FIXTURE " + fixture["teams"]["home"]["name"] + " vs " + fixture["teams"]["away"]["name"] + "-------------")
+
             league = fixture["league"]["name"]
             # leagueLogo = fixture["league"]["logo"]
             round = fixture["league"]["round"]
@@ -75,7 +76,7 @@ class MatchAnalysisPostGenerator:
                 
             now = datetime.now(timezone.utc)
 
-            if date_object < now or (date_object - now).days > 10:
+            if date_object < now or (date_object - now).days > 3:
                 continue
             fixtureDateLong = date_object.strftime("%A, %d %B %Y")
             
@@ -169,7 +170,7 @@ class MatchAnalysisPostGenerator:
 
             awayTeamPlayers = self.footballData.getPlayersStatsByTeam(fixture["teams"]["away"]["id"])
             awayTeamFilteredPlayers = list(filter(lambda player: player["statistics"][0]["games"]["rating"] is not None, awayTeamPlayers))
-            awayTeamSortedPlayersBasedOnMinutes = sorted(awayTeamFilteredPlayers, key=lambda item: item["statistics"][0]["games"]["minutes"], reverse=True)[:15]
+            awayTeamSortedPlayersBasedOnMinutes = sorted(awayTeamFilteredPlayers, key=lambda item: item["statistics"][0]["games"]["minutes"] or 0, reverse=True)[:15]
             awayTeamSortedPlayersBasedOnRating = sorted(awayTeamSortedPlayersBasedOnMinutes, key=lambda item: item["statistics"][0]["games"]["rating"], reverse=True)[:5]
             awayTeamKeyPlayersAbsences = []
             for player in awayTeamSortedPlayersBasedOnRating:

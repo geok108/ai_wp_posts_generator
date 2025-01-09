@@ -168,7 +168,9 @@ class FootballApi:
             "39": "/england/premier-league",
             "140": "/spain/la-liga",
             "135": "/italy/serie-a",
-            "78": "/germany/bundesliga"
+            "78": "/germany/bundesliga",
+            "525": "/europe/uefa-champions-league",
+            "61": "/france/ligue-1"
         }
 
         return switcher.get(leagueId, "")
@@ -199,6 +201,9 @@ class FootballApi:
                 # Ensure the number of teams matches the number of xG values
                 if len(teams) == len(xg_values):
                     for team, xg in zip(teams, xg_values):
+                        # with open("team_names.txt", "a") as file:
+                        #     file.write(f'"{team.find('a').next}": "",\n')
+                        
                         team_name = self.getTeamShortName(team.find('a').next)
                         # team_name = team.find('a').next
 
@@ -318,7 +323,25 @@ class FootballApi:
             "Rasen Ballsport Leipzig": "RB Leipzig",
             "SV Werder Bremen": "Werder Bremen",
             "FC Augsburg": "FC Augsburg",
-            "VfB Stuttgart 1893": "VfB Stuttgart"
+            "VfB Stuttgart 1893": "VfB Stuttgart",
+            "Paris Saint-Germain FC": "Paris Saint Germain",
+            "Olympique Lyonnais": "Lyon",
+            "Racing Club de Lens": "Lens",
+            "OGC Nice Côte d'Azur": "Nice",
+            "AS Monaco FC": "Monaco",
+            "Lille OSC Métropole": "Lille",
+            "Stade Brestois 29": "Stade Brestois 29",
+            "Olympique de Marseille": "Marseille",
+            "Stade Rennais FC": "Rennes",
+            "Montpellier HSC": "Montpellier",
+            "Toulouse FC": "Toulouse",
+            "FC Nantes": "Nantes",
+            "Stade de Reims": "Reims",
+            "Association Jeunesse Auxerroise": "Auxerre",
+            "RC Strasbourg Alsace": "Strasbourg",
+            "AS Saint-Étienne": "Saint Etienne",
+            "Angers Sporting Club de l'Ouest": "Angers",
+            "Le Havre AC": "LE Havre"
         }
         return switcher.get(fullname, "")
         

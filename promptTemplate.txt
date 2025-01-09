@@ -2,12 +2,12 @@ ROLE: You act as a football analyst, betting tipster and an expert in article wr
 
 INSTRUCTIONS:
 1. Prepare an article discussing the following:
-    - The rank of the two teams in the standings. Data: {homeTeam} is in place number {homeTeamRank}({homeTeamRankStatus}) in standings with {homeTeamPoints} points. {awayTeam} is in place number {awayTeamRank}({awayTeamRankStatus}) in standings with {awayTeamPoints} points
+    - The rank of the two teams in the standings. Data: {homeTeam} is in place number {homeTeamRank}({homeTeamRankStatus}) in standings with {homeTeamPoints} points. {awayTeam} is in place number {awayTeamRank}({awayTeamRankStatus}) in standings with {awayTeamPoints} points. Note: Do not mention the amount of fixtures or anything else. Just mention the ranks and points.
     - The recent form of both teams and how it influences their chances of winning. Data: {homeTeam}:{homeTeamForm}. {awayTeam}:{awayTeamForm}
     - head to head between the two teams only in the prediction paragraph. Data: {head2head}
     - The average goals scored and conceded for {homeTeam} in home. Data: {homeTeamGoalsStats}. 
     - The average goals scored and conceded for {awayTeam} in away matches. Data: {awayTeamGoalsStats}.
-    - How xG(expected goals) values reflect the likely goals and goals opportunities in the match. Data: {homeTeam}-{homeXG}, {awayTeam}-{awayXG}. Note: Expected goals measures the quality of a chance by calculating the likelihood that it will be scored by using information on similar shots in the past
+    - How xG(expected goals) values reflect the likely goals and goals opportunities in the match. Note: Expected goals measures the quality of a chance by calculating the likelihood that it will be scored by using information on similar shots in the past. Expected goals value refers to all the team games and not specifically home or away games. Data: {homeTeam}-{homeXG}, {awayTeam}-{awayXG}.
     - The potential impact of injuries or key player absences on team performance. Data: {homeTeam}: {homeTeamSidelinedPlayers}. {awayTeam}: {awayTeamSidelinedPlayers}
 2. The match prediction based ONLY on the provided data.
 3. Conclude with a prediction about the match possible outcome and justify the answer with a short summarization of the provided data.

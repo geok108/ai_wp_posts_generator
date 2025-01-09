@@ -12,7 +12,8 @@ class WPApi:
             "39": 1,
             "140": 6,
             "135": 3,
-            "78": 5
+            "78": 5,
+            "61": 7,
         }
 
         return [switcher.get(category, "") for category in categories]
