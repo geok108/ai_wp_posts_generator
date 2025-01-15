@@ -42,12 +42,14 @@ class MatchAnalysisPostGenerator:
                 prompt += line  # Add each line to the prompt string, preserving newlines
         return prompt
     
-    def generate(self, leagueId, season):
+    def generate(self, leagueId, season, currentRound=None):
         start_time = time.time()
        
         self.footballData = FootballApi(leagueId, season)
-        currentRound = self.footballData.getCurrentRound()
+        if currentRound is None:
+            currentRound = self.footballData.getCurrentRound()
         print(currentRound) 
+
         currentRoundFixtures = self.footballData.getCurrentRoundFixtures(currentRound)
 
         for fixture in currentRoundFixtures["response"]:
@@ -75,8 +77,8 @@ class MatchAnalysisPostGenerator:
                 date_object = date_object.replace(tzinfo=timezone.utc)
                 
             now = datetime.now(timezone.utc)
-
-            if date_object < now or (date_object - now).days > 3:
+            
+            if date_object <= now or (date_object - now).days > 3:
                 continue
             fixtureDateLong = date_object.strftime("%A, %d %B %Y")
             
@@ -158,7 +160,7 @@ class MatchAnalysisPostGenerator:
             homeTeamPlayers = self.footballData.getPlayersStatsByTeam(fixture["teams"]["home"]["id"])
             homeTeamFilteredPlayers = list(filter(lambda player: player["statistics"][0]["games"]["rating"] is not None, homeTeamPlayers))
 
-            homeTeamSortedPlayersBasedOnMinutes = sorted(homeTeamFilteredPlayers, key=lambda item: item["statistics"][0]["games"]["minutes"], reverse=True)[:15]
+            homeTeamSortedPlayersBasedOnMinutes = sorted(homeTeamFilteredPlayers, key=lambda item: item["statistics"][0]["games"]["minutes"] or 0, reverse=True)[:15]
             homeTeamSortedPlayersBasedOnRating = sorted(homeTeamSortedPlayersBasedOnMinutes, key=lambda item: item["statistics"][0]["games"]["rating"], reverse=True)[:5]
             homeTeamKeyPlayersAbsences = []
             for player in homeTeamSortedPlayersBasedOnRating:
@@ -268,7 +270,7 @@ class MatchAnalysisPostGenerator:
             postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " Analysis and Prediction"
             print("CREATING WP POST...")
             # wpApi.createPost(postTitle, postContent, [league], [fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"]])
-            wpPostCreated = self.wpApi.createPost(postTitle, postContent, fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"], leagueLogo, homeTeamImage, awayTeamImage, fixtureDate, round, fixtureTime, finalPrediction, [leagueId])
+            wpPostCreated = self.wpApi.createPost(postTitle, postContent, fixture["fixture"]["id"], fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"], leagueLogo, homeTeamImage, awayTeamImage, fixtureDate, round, fixtureTime, finalPrediction, [leagueId], [round])
             if(wpPostCreated):
                 print("WP POST CREATED")
 

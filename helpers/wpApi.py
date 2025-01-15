@@ -1,5 +1,6 @@
 import requests
 import json
+from datetime import datetime
 
 class WPApi:
 
@@ -18,7 +19,7 @@ class WPApi:
 
         return [switcher.get(category, "") for category in categories]
     
-    def createPost(self, title, content, teamA, teamB, leagueBadge, teamABadge, teamBBadge, matchDate, round, matchTime, prediction, categories=[], tags=[]):
+    def createPost(self, title, content, fixtureId, teamA, teamB, leagueBadge, teamABadge, teamBBadge, matchDate, round, matchTime, prediction, categories=[], tags=[]):
         leagueCategories = self.getLeagueCategory(categories)
 
         # The post you want to create
@@ -26,8 +27,9 @@ class WPApi:
             "title": title,
             "content": content,
             "categories": leagueCategories,
-            "tags": tags,
+            # "tags": tags,
             "meta": {
+                "fixtureId": fixtureId,
                 "teamA": teamA,
                 "teamB": teamB,
                 "teamABadge": teamABadge,
@@ -60,3 +62,35 @@ class WPApi:
         else:
             print("Failed to create post. Status Code:", response.status_code, "Response:", response.text)
             return False
+
+    def getFinishedMatchesPosts(self):
+        url =  f"{self.site_url}{self.endpoint}"
+        
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        params = {
+            'meta_key': "matchDate",
+            'meta_value': current_date,
+            'meta_compare': '<',
+            'per_page': 100,
+        }
+        
+        # Load configuration from a JSON file
+        with open('config.json', 'r') as config_file:
+            config = json.load(config_file)
+
+        headers={
+            "Authorization": config["wpApiKey"]
+        }
+
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        return response.json()
+
+    def update_post(self, post_id, data):
+        url = f"{self.site_url}/posts/{post_id}"
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response.raise_for_status()
+        return response.json()
