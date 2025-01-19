@@ -92,6 +92,15 @@ class FootballApi:
         with open(injuriesPath, 'w') as file:
             json.dump(injuries, file)
         return injuries
+    
+    def getOdds(self, fixtureId):
+        url = self.baseUrl + "/odds"
+
+        querystring = {"fixture": fixtureId}
+
+        odds = requests.get(url, headers=self.headers, params=querystring).json()
+
+        return odds["response"]
 
     def getTeamStats(self, teamId):
         if self.local and os.path.exists("teamStats.json"):
@@ -170,7 +179,8 @@ class FootballApi:
             "135": "/italy/serie-a",
             "78": "/germany/bundesliga",
             "525": "/europe/uefa-champions-league",
-            "61": "/france/ligue-1"
+            "61": "/france/ligue-1",
+            "2":"/europe/uefa-champions-league"
         }
 
         return switcher.get(leagueId, "")

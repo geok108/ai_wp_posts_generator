@@ -53,7 +53,7 @@ class MatchAnalysisPostGenerator:
         currentRoundFixtures = self.footballData.getCurrentRoundFixtures(currentRound)
 
         for fixture in currentRoundFixtures["response"]:
-            # if(fixture["fixture"]["id"] != 1208659):
+            # if(fixture["fixture"]["id"] != 1224133):
             #     continue
             print("-------------FIXTURE " + fixture["teams"]["home"]["name"] + " vs " + fixture["teams"]["away"]["name"] + "-------------")
 
@@ -78,8 +78,10 @@ class MatchAnalysisPostGenerator:
                 
             now = datetime.now(timezone.utc)
             
-            if date_object <= now or (date_object - now).days > 3:
+            if date_object.date() <= now.date() or (date_object - now).days > 3:
                 continue
+            # if (date_object - now).days != 2:
+            #         continue
             fixtureDateLong = date_object.strftime("%A, %d %B %Y")
             
             fixtureDate = date_object.strftime("%Y-%m-%d")
@@ -255,7 +257,16 @@ class MatchAnalysisPostGenerator:
 
             for key, value in placeholders.items():
                 promptTemplate = re.sub(key, value, promptTemplate)
-            
+            fixtureOdds = self.footballData.getOdds(fixture["fixture"]["id"])
+            switcher = {}
+            if(len(fixtureOdds) > 0):
+                odds = fixtureOdds[0]["bookmakers"][0]["bets"][0]["values"]
+                switcher = {
+                    '1': f"{odds[0]["odd"]}" if odds[0]["value"] == "Home" else "N/A",
+                    'X': f"{odds[1]["odd"]}" if odds[1]["value"] == "Draw" else "N/A",
+                    '2': f"{odds[2]["odd"]}" if odds[2]["value"] == "Away" else "N/A"
+                }
+
             res = self.ollama.ChatOllama(promptTemplate)
 
             match = re.search(r'Prediction:\s*([1X2])', res)
@@ -263,10 +274,12 @@ class MatchAnalysisPostGenerator:
             if match:
                 finalPrediction = match.group(1).strip()
 
+            predictionOdds = switcher.get(finalPrediction, "N/A")
+
             # file_content = file_content.rstrip()
             res = res.rstrip()
             team_stats_file_content = team_stats_file_content.rstrip()
-            postContent = game_widget + res + team_stats_file_content + standings_widget
+            postContent = game_widget + res + "\n<strong>Approx. Odds: " + predictionOdds + "</strong>" + team_stats_file_content + standings_widget
             postTitle = fixture["teams"]["home"]["name"] + " - " + fixture["teams"]["away"]["name"] + " Analysis and Prediction"
             print("CREATING WP POST...")
             # wpApi.createPost(postTitle, postContent, [league], [fixture["teams"]["home"]["name"], fixture["teams"]["away"]["name"]])

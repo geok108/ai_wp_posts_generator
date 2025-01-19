@@ -15,6 +15,7 @@ class WPApi:
             "135": 3,
             "78": 5,
             "61": 7,
+            "2": 8
         }
 
         return [switcher.get(category, "") for category in categories]
@@ -29,7 +30,7 @@ class WPApi:
             "categories": leagueCategories,
             # "tags": tags,
             "meta": {
-                "fixtureId": fixtureId,
+                "fixtureId": str(fixtureId),
                 "teamA": teamA,
                 "teamB": teamB,
                 "teamABadge": teamABadge,
