@@ -57,6 +57,7 @@ class MatchAnalysisPostGenerator:
             #     continue
             print("-------------FIXTURE " + fixture["teams"]["home"]["name"] + " vs " + fixture["teams"]["away"]["name"] + "-------------")
 
+            prediction = self.footballData.getPredictions(fixture["fixture"]["id"])
             league = fixture["league"]["name"]
             # leagueLogo = fixture["league"]["logo"]
             round = fixture["league"]["round"]
